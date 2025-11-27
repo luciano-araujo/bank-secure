@@ -1,4 +1,4 @@
 package com.fiap.projetoFinal.bankSecure.Repository;
 
-public class SeguroRepository {
+public interface SeguroRepository {
 }
