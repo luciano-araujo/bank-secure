@@ -5,11 +5,8 @@ import com.fiap.projetoFinal.banksecure.domain.Bem;
 import com.fiap.projetoFinal.banksecure.domain.Cliente;
 import com.fiap.projetoFinal.banksecure.domain.Funcionario;
 import com.fiap.projetoFinal.banksecure.enums.TipoSeguroEnum;
-import com.fiap.projetoFinal.banksecure.service.ApoliceService;
-import com.fiap.projetoFinal.banksecure.service.ClienteService;
-import com.fiap.projetoFinal.banksecure.service.CotacaoService;
-import com.fiap.projetoFinal.banksecure.service.FuncionarioService;
-import com.fiap.projetoFinal.banksecure.service.SeguroService;
+import com.fiap.projetoFinal.banksecure.service.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +15,9 @@ import java.util.*;
 
 @Component
 public class ConsoleRunner implements CommandLineRunner {
+
+    @Value("${skip.console:false}")
+    private boolean skipConsole;
 
     private final ClienteService clienteService;
     private final FuncionarioService funcionarioService;
@@ -43,6 +43,12 @@ public class ConsoleRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+
+        // verificacao que permite pular o console durante ciclo clean/install do maven
+        if(skipConsole) {
+            return;
+        }
+
         Scanner scanner = new Scanner(System.in);
         String opcao;
         do {
