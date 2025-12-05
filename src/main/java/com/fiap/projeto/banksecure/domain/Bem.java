@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,10 +21,13 @@ public class Bem {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private String descricao;
+
+    @Column(nullable = false)
     private BigDecimal valor;
 
     @ManyToOne
     @JoinColumn(name = "apolice_id", nullable = false)
-    private Apolice apolice; //
+    private Apolice apolice;
 }

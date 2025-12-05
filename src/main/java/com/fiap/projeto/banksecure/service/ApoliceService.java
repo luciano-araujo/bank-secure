@@ -33,7 +33,7 @@ public class ApoliceService {
         Apolice apolice = new Apolice();
         apolice.setCliente(cliente);
         apolice.setTipoSeguroEnum(tipoSeguro);
-        apolice.setVencimento(LocalDate.now().plusYears(1));
+        apolice.setDataVencimento(LocalDate.now().plusYears(1));
 
         if (bens != null) {
             for (Bem bem : bens) {

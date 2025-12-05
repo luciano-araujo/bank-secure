@@ -16,7 +16,7 @@ import java.util.*;
 @Component
 public class ConsoleRunner implements CommandLineRunner {
 
-    @Value("${skip.console:false}")
+    @Value("${skip.console:true}")
     private boolean skipConsole;
 
     private final ClienteService clienteService;
@@ -258,7 +258,7 @@ public class ConsoleRunner implements CommandLineRunner {
                     a.getCliente() != null ? a.getCliente().getNome() : "-",
                     a.getTipoSeguroEnum() != null ? a.getTipoSeguroEnum().name() : "-",
                     a.getTotalCobertura(),
-                    a.getVencimento());
+                    a.getDataVencimento());
         }
         System.out.println();
     }
@@ -287,7 +287,7 @@ public class ConsoleRunner implements CommandLineRunner {
             Apolice renovada = apoliceService.renovarApolice(atual);
             apolices.add(renovada);
             System.out.println("Apólice renovada com sucesso.");
-            System.out.println("Nova data de vencimento: " + renovada.getVencimento());
+            System.out.println("Nova data de vencimento: " + renovada.getDataVencimento());
             System.out.println("Total de cobertura: " + renovada.getTotalCobertura());
             BigDecimal premio = cotacaoService.calcularPremio(renovada.getTotalCobertura(), renovada.getTipoSeguroEnum());
             System.out.println("Novo prêmio estimado: " + premio + "\n");

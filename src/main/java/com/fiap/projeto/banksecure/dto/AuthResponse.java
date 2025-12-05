@@ -1,4 +1,9 @@
 package com.fiap.projeto.banksecure.dto;
 
-public record AuthResponse() {
-}
+import java.util.UUID;
+
+public record AuthResponse(
+        boolean authenticated,
+        UUID FuncionarioId,
+        String nome
+) {}
