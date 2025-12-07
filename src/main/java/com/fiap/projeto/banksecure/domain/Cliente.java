@@ -26,6 +26,9 @@ public class Cliente {
     private String email;
 
     @Column(nullable = false)
+    private LocalDate dataNascimento;
+
+    @Column(nullable = false)
     private String senha;
 
     @Column(length = 16 , nullable = false)
