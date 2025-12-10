@@ -1,14 +1,15 @@
-package com.fiap.projeto.banksecure;
+package com.fiap.projeto.banksecure.console;
 
+import com.fiap.projeto.banksecure.console.menus.MenuApolices;
+import com.fiap.projeto.banksecure.console.menus.MenuCliente;
+import com.fiap.projeto.banksecure.console.menus.MenuSeguro;
 import com.fiap.projeto.banksecure.domain.Apolice;
 import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.domain.Funcionario;
-import com.fiap.projeto.banksecure.domain.Seguro;
 import com.fiap.projeto.banksecure.service.*;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -65,17 +66,17 @@ public class ConsoleMenu {
                     break;
                 case "4":
                     if (loginValidator(loginStats)) {
-                        ManageClientsOption(scanner);
+                        MenuCliente.start(scanner);
                     }
                     break;
                 case "5":
                     if (loginValidator(loginStats)) {
-                        ManageSecuresOption(scanner);
+                        MenuSeguro.start(scanner);
                     }
                     break;
                 case "6":
                     if (loginValidator(loginStats)) {
-                        ManageApoliciesOption(scanner);
+                        MenuApolices.start(scanner);
                     }
                     break;
                 case "7":
@@ -182,136 +183,6 @@ public class ConsoleMenu {
         System.out.println("Seguros disponíveis:\n");
         secureTypes.forEach(type -> System.out.println("- " + type));
         System.out.println();
-    }
-
-    // Opção 4 -> Futuramente ClientController
-    private static void ManageClientsOption(Scanner scanner) {
-        String option;
-
-        do {
-            String menu = "\n";
-            menu += "=============================\n";
-            menu += "   Gerenciar Clientes\n";
-            menu += "=============================\n\n";
-            menu += "1. Listar Clientes\n";
-            menu += "2. Criar Cliente\n";
-            menu += "3. Editar Cliente\n";
-            menu += "4. Excluir Cliente\n";
-            menu += "0. Voltar\n\n";
-            menu += "Digite a opção desejada: ";
-
-            System.out.print(menu);
-            option = scanner.nextLine();
-            System.out.println();
-
-            switch (option) {
-                case "1":
-                    System.out.println("Listando clientes... (Not Implemented)\n");
-                    break;
-                case "2":
-                    System.out.println("Criando cliente... (Not Implemented)\n");
-                    break;
-                case "3":
-                    System.out.println("Editando cliente... (Not Implemented)\n");
-                    break;
-                case "4":
-                    System.out.println("Excluindo cliente... (Not Implemented)\n");
-                    break;
-                case "0":
-                    System.out.println("Voltando...\n");
-                    break;
-                default:
-                    System.out.println("Opção inválida.\n");
-            }
-
-        } while (!option.equals("0"));
-    }
-
-
-    // Opção 5 -> Futuramente SecureController
-    private static void ManageSecuresOption(Scanner scanner) {
-        String option;
-
-        do {
-            String menu = "\n";
-            menu += "=============================\n";
-            menu += "    Gerenciar Seguros\n";
-            menu += "=============================\n\n";
-            menu += "1. Listar Seguros\n";
-            menu += "2. Criar Seguro\n";
-            menu += "3. Editar Seguro\n";
-            menu += "4. Excluir Seguro\n";
-            menu += "0. Voltar\n\n";
-            menu += "Digite a opção desejada: ";
-
-            System.out.print(menu);
-            option = scanner.nextLine();
-            System.out.println();
-
-            switch (option) {
-                case "1":
-                    System.out.println("Listando seguros... (Not Implemented)\n");
-                    break;
-                case "2":
-                    System.out.println("Criando seguro... (Not Implemented)\n");
-                    break;
-                case "3":
-                    System.out.println("Editando seguro... (Not Implemented)\n");
-                    break;
-                case "4":
-                    System.out.println("Excluindo seguro... (Not Implemented)\n");
-                    break;
-                case "0":
-                    System.out.println("Voltando...\n");
-                    break;
-                default:
-                    System.out.println("Opção inválida.\n");
-            }
-
-        } while (!option.equals("0"));
-    }
-
-    // Opção 6 - Futuramente ApoliciesController
-    private static void ManageApoliciesOption(Scanner scanner) {
-        String option;
-
-        do {
-            String menu = "\n";
-            menu += "=============================\n";
-            menu += "    Gerenciar Apólices\n";
-            menu += "=============================\n\n";
-            menu += "1. Listar Apólices\n";
-            menu += "2. Criar Apólice\n";
-            menu += "3. Editar Apólice\n";
-            menu += "4. Excluir Apólice\n";
-            menu += "0. Voltar\n\n";
-            menu += "Digite a opção desejada: ";
-
-            System.out.print(menu);
-            option = scanner.nextLine();
-            System.out.println();
-
-            switch (option) {
-                case "1":
-                    System.out.println("Listando apólices... (Not Implemented)\n");
-                    break;
-                case "2":
-                    System.out.println("Criando apólice... (Not Implemented)\n");
-                    break;
-                case "3":
-                    System.out.println("Editando apólice... (Not Implemented)\n");
-                    break;
-                case "4":
-                    System.out.println("Excluindo apólice... (Not Implemented)\n");
-                    break;
-                case "0":
-                    System.out.println("Voltando...\n");
-                    break;
-                default:
-                    System.out.println("Opção inválida.\n");
-            }
-
-        } while (!option.equals("0"));
     }
 
     // Opção 7

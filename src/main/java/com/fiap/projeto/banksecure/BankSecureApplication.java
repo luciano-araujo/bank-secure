@@ -1,5 +1,6 @@
 package com.fiap.projeto.banksecure;
 
+import com.fiap.projeto.banksecure.console.ConsoleMenu;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
