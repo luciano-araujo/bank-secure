@@ -32,6 +32,9 @@ public class Seguro {
     @Column(nullable = false)
     private String descricao;
 
+    @Column(nullable = false)
+    private String coberturaMinima;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoSeguroEnum tipoSeguroEnum;
