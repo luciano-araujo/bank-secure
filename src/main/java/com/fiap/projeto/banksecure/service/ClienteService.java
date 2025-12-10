@@ -4,26 +4,34 @@ import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @Service
 public class ClienteService {
 
+    private final ClienteRepository clienteRepository;
+
     @Autowired
-    ClienteRepository clienteRepository;
+    public ClienteService(ClienteRepository clienteRepository) {
+        this.clienteRepository = clienteRepository;
+    }
 
     public void validarCadastro(Cliente cliente) {
-    private ClienteRepository clienteRepository;
+        validarCliente(cliente);
+        validarIdade(cliente.getDataNascimento());
+    }
 
     @Transactional
     public Cliente cadastrar(Cliente cliente) {
-        validarCliente(cliente);
-        validarIdade(cliente.getDataNascimento());
+        validarCadastro(cliente);
         return clienteRepository.save(cliente);
     }
 
-    //[RF04] Cliente deve ter: Nome, CPF, Data de Nascimento.
+    // [RF04] Cliente deve ter: Nome, CPF, Data de Nascimento.
     protected void validarCliente(Cliente cliente) {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente é obrigatório.");
@@ -41,18 +49,16 @@ public class ClienteService {
             throw new IllegalArgumentException("Data de nascimento é obrigatória.");
         }
     }
+
     // [RF05] Regra de Elegibilidade (Idade)
     private void validarIdade(LocalDate dataNascimento) {
-        // Valida se data existe
         if (dataNascimento == null) {
             throw new IllegalArgumentException("Data de nascimento é obrigatória");
         }
 
         LocalDate hoje = LocalDate.now();
-        // 1. Calcula idade exata
         int idade = Period.between(dataNascimento, hoje).getYears();
 
-        // 3. Valida idade mínima [RF05]
         if (idade < 18) {
             throw new IllegalArgumentException(
                     String.format("Cliente deve ser maior de 18 anos. Idade: %d anos", idade)
@@ -60,12 +66,7 @@ public class ClienteService {
         }
     }
 
-    public Cliente cadastrarCliente(Cliente cliente){
-        return clienteRepository.save(cliente);
-    }
-
-    public List<Cliente> listarClientes(){
-        List<Cliente> clientes = clienteRepository.findAll();
-        return clientes;
+    public List<Cliente> listarClientes() {
+        return clienteRepository.findAll();
     }
 }
