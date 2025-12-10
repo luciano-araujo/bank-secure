@@ -15,9 +15,7 @@ import java.util.*;
 
 @Component
 public class ConsoleRunner implements CommandLineRunner {
-
-    @Value("${skip.console:true}")
-    private boolean skipConsole;
+    public static boolean skipConsoleRunner = true;
 
     private final ClienteService clienteService;
     private final FuncionarioService funcionarioService;
@@ -43,9 +41,8 @@ public class ConsoleRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-
         // verificacao que permite pular o console durante ciclo clean/install do maven
-        if(skipConsole) {
+        if(skipConsoleRunner) {
             return;
         }
 

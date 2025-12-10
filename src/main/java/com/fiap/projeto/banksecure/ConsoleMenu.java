@@ -1,13 +1,45 @@
 package com.fiap.projeto.banksecure;
 
+import com.fiap.projeto.banksecure.domain.Apolice;
+import com.fiap.projeto.banksecure.domain.Cliente;
+import com.fiap.projeto.banksecure.domain.Funcionario;
+import com.fiap.projeto.banksecure.domain.Seguro;
+import com.fiap.projeto.banksecure.service.*;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+@Component
 public class ConsoleMenu {
+    @Value("${skip.console:false}")
+    private boolean skipConsole;
 
-    public static void main(String[] args) {
+    @Autowired
+    private final ClienteService clienteService = new ClienteService();
+    @Autowired
+    private final FuncionarioService funcionarioService = new FuncionarioService();
+    @Autowired
+    private final SeguroService seguroService = new SeguroService();
+    @Autowired
+    private final CotacaoService cotacaoService = new CotacaoService();
+    @Autowired
+    private final ApoliceService apoliceService = new ApoliceService();
+
+    private final List<Cliente> clientes = new ArrayList<>();
+    private final List<Funcionario> funcionarios = new ArrayList<>();
+    private final List<Apolice> apolices = new ArrayList<>();
+
+    public void start(){
+        if (this.skipConsole){
+            return;
+        }
+
         String option;
         Scanner scanner = new Scanner(System.in);
         LoginStats loginStats = LoginStats.ANONIMO;
@@ -33,17 +65,17 @@ public class ConsoleMenu {
                     break;
                 case "4":
                     if (loginValidator(loginStats)) {
-                        ManageClientsOption();
+                        ManageClientsOption(scanner);
                     }
                     break;
                 case "5":
                     if (loginValidator(loginStats)) {
-                        ManageSecuresOption();
+                        ManageSecuresOption(scanner);
                     }
                     break;
                 case "6":
                     if (loginValidator(loginStats)) {
-                        ManageApoliciesOption();
+                        ManageApoliciesOption(scanner);
                     }
                     break;
                 case "7":
@@ -136,7 +168,7 @@ public class ConsoleMenu {
         System.out.println("Not Implemented");
     }
 
-    // Opção 3
+    // Opção 3 -> Futuramente Dentro de SecureController
     private static void SecureTypesViewOption(){
         // Todo: Puxar do banco de dados
         List<String> secureTypes = List.of(
@@ -152,19 +184,134 @@ public class ConsoleMenu {
         System.out.println();
     }
 
-    // Opção 4
-    private static void ManageClientsOption() {
-        System.out.println("Not Implemented");
+    // Opção 4 -> Futuramente ClientController
+    private static void ManageClientsOption(Scanner scanner) {
+        String option;
+
+        do {
+            String menu = "\n";
+            menu += "=============================\n";
+            menu += "   Gerenciar Clientes\n";
+            menu += "=============================\n\n";
+            menu += "1. Listar Clientes\n";
+            menu += "2. Criar Cliente\n";
+            menu += "3. Editar Cliente\n";
+            menu += "4. Excluir Cliente\n";
+            menu += "0. Voltar\n\n";
+            menu += "Digite a opção desejada: ";
+
+            System.out.print(menu);
+            option = scanner.nextLine();
+            System.out.println();
+
+            switch (option) {
+                case "1":
+                    System.out.println("Listando clientes... (Not Implemented)\n");
+                    break;
+                case "2":
+                    System.out.println("Criando cliente... (Not Implemented)\n");
+                    break;
+                case "3":
+                    System.out.println("Editando cliente... (Not Implemented)\n");
+                    break;
+                case "4":
+                    System.out.println("Excluindo cliente... (Not Implemented)\n");
+                    break;
+                case "0":
+                    System.out.println("Voltando...\n");
+                    break;
+                default:
+                    System.out.println("Opção inválida.\n");
+            }
+
+        } while (!option.equals("0"));
     }
 
-    // Opção 5
-    private static void ManageSecuresOption() {
-        System.out.println("Not Implemented");
+
+    // Opção 5 -> Futuramente SecureController
+    private static void ManageSecuresOption(Scanner scanner) {
+        String option;
+
+        do {
+            String menu = "\n";
+            menu += "=============================\n";
+            menu += "    Gerenciar Seguros\n";
+            menu += "=============================\n\n";
+            menu += "1. Listar Seguros\n";
+            menu += "2. Criar Seguro\n";
+            menu += "3. Editar Seguro\n";
+            menu += "4. Excluir Seguro\n";
+            menu += "0. Voltar\n\n";
+            menu += "Digite a opção desejada: ";
+
+            System.out.print(menu);
+            option = scanner.nextLine();
+            System.out.println();
+
+            switch (option) {
+                case "1":
+                    System.out.println("Listando seguros... (Not Implemented)\n");
+                    break;
+                case "2":
+                    System.out.println("Criando seguro... (Not Implemented)\n");
+                    break;
+                case "3":
+                    System.out.println("Editando seguro... (Not Implemented)\n");
+                    break;
+                case "4":
+                    System.out.println("Excluindo seguro... (Not Implemented)\n");
+                    break;
+                case "0":
+                    System.out.println("Voltando...\n");
+                    break;
+                default:
+                    System.out.println("Opção inválida.\n");
+            }
+
+        } while (!option.equals("0"));
     }
 
-    // Opção 6
-    private static void ManageApoliciesOption() {
-        System.out.println("Not Implemented");
+    // Opção 6 - Futuramente ApoliciesController
+    private static void ManageApoliciesOption(Scanner scanner) {
+        String option;
+
+        do {
+            String menu = "\n";
+            menu += "=============================\n";
+            menu += "    Gerenciar Apólices\n";
+            menu += "=============================\n\n";
+            menu += "1. Listar Apólices\n";
+            menu += "2. Criar Apólice\n";
+            menu += "3. Editar Apólice\n";
+            menu += "4. Excluir Apólice\n";
+            menu += "0. Voltar\n\n";
+            menu += "Digite a opção desejada: ";
+
+            System.out.print(menu);
+            option = scanner.nextLine();
+            System.out.println();
+
+            switch (option) {
+                case "1":
+                    System.out.println("Listando apólices... (Not Implemented)\n");
+                    break;
+                case "2":
+                    System.out.println("Criando apólice... (Not Implemented)\n");
+                    break;
+                case "3":
+                    System.out.println("Editando apólice... (Not Implemented)\n");
+                    break;
+                case "4":
+                    System.out.println("Excluindo apólice... (Not Implemented)\n");
+                    break;
+                case "0":
+                    System.out.println("Voltando...\n");
+                    break;
+                default:
+                    System.out.println("Opção inválida.\n");
+            }
+
+        } while (!option.equals("0"));
     }
 
     // Opção 7
