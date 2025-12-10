@@ -8,10 +8,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class BankSecureApplication {
-    @Value("${run.consoleMenu:true}")
-    private static boolean runConsoleMenu;
-    @Value("${run.consoleRunner:false}")
-    private static boolean runConsoleRunner;
+    private final static boolean runConsoleMenu = true;
+    private final static boolean runConsoleRunner = false;
 
 	public static void main(String[] args) {
         ConsoleRunner.skipConsoleRunner = !runConsoleRunner;

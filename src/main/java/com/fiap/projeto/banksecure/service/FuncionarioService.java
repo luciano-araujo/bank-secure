@@ -84,7 +84,7 @@ public class FuncionarioService {
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
     }
 
-    public boolean logar(AuthRequest request){
+    public AuthResponse logar(AuthRequest request) throws RuntimeException{
         Funcionario funcionario = repository.findByEmail(request.email())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -99,6 +99,6 @@ public class FuncionarioService {
                 true,
                 funcionario.getId(),
                 funcionario.getNome()
-        ).authenticated();
+        );
     }
 }

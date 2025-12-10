@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class MenuSeguro {
     // Opção 5 -> Futuramente SecureController
-    public static void start(Scanner scanner) {
+    public void start(Scanner scanner) {
         String option;
 
         do {

@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class MenuApolices {
     // Opção 6 - Futuramente ApoliciesController
-    public static void start(Scanner scanner) {
+    public void start(Scanner scanner) {
         String option;
 
         do {

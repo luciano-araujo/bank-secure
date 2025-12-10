@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class MenuCliente {
     // Opção 4 -> Futuramente ClientController
-    public static void start(Scanner scanner) {
+    public void start(Scanner scanner) {
         String option;
 
         do {
