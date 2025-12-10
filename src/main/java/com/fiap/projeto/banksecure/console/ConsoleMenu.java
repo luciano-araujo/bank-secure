@@ -1,13 +1,49 @@
-package com.fiap.projeto.banksecure;
+package com.fiap.projeto.banksecure.console;
 
+import com.fiap.projeto.banksecure.console.menus.MenuApolices;
+import com.fiap.projeto.banksecure.console.menus.MenuCliente;
+import com.fiap.projeto.banksecure.console.menus.MenuSeguro;
+import com.fiap.projeto.banksecure.domain.Apolice;
+import com.fiap.projeto.banksecure.domain.Cliente;
+import com.fiap.projeto.banksecure.domain.Funcionario;
+import com.fiap.projeto.banksecure.dto.AuthRequest;
+import com.fiap.projeto.banksecure.dto.AuthResponse;
+import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
+import com.fiap.projeto.banksecure.service.*;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+@Component
 public class ConsoleMenu {
+    @Value("${skip.console:false}")
+    private boolean skipConsole;
 
-    public static void main(String[] args) {
+    @Autowired
+    private final ClienteService clienteService = new ClienteService();
+    @Autowired
+    private final FuncionarioService funcionarioService = new FuncionarioService();
+    @Autowired
+    private final SeguroService seguroService = new SeguroService();
+    @Autowired
+    private final CotacaoService cotacaoService = new CotacaoService();
+    @Autowired
+    private final ApoliceService apoliceService = new ApoliceService();
+
+    private final MenuCliente menuCliente = new MenuCliente();
+    private final MenuApolices menuApolices = new MenuApolices();
+    private final MenuSeguro menuSeguro = new MenuSeguro();
+
+    public void start(){
+        if (this.skipConsole){
+            return;
+        }
+
         String option;
         Scanner scanner = new Scanner(System.in);
         LoginStats loginStats = LoginStats.ANONIMO;
@@ -26,24 +62,24 @@ public class ConsoleMenu {
                     loginStats = loginOption(scanner, loginStats);
                     break;
                 case "2":
-                    CadastroOption();
+                    CadastroOption(scanner);
                     break;
                 case "3":
                     SecureTypesViewOption();
                     break;
                 case "4":
                     if (loginValidator(loginStats)) {
-                        ManageClientsOption();
+                        menuCliente.start(scanner);
                     }
                     break;
                 case "5":
                     if (loginValidator(loginStats)) {
-                        ManageSecuresOption();
+                        menuSeguro.start(scanner);
                     }
                     break;
                 case "6":
                     if (loginValidator(loginStats)) {
-                        ManageApoliciesOption();
+                        menuApolices.start(scanner);
                     }
                     break;
                 case "7":
@@ -98,7 +134,7 @@ public class ConsoleMenu {
 
     }
 
-    private static boolean loginValidator(LoginStats loginStats) {
+    private boolean loginValidator(LoginStats loginStats) {
         if (loginStats != LoginStats.LOGADO) {
             System.out.println("Opção inválida.");
             return false;
@@ -109,35 +145,65 @@ public class ConsoleMenu {
     }
 
     // Opção 1
-    private static LoginStats loginOption(Scanner scanner, LoginStats loginStats){
+    private LoginStats loginOption(Scanner scanner, LoginStats loginStats){
         if (loginStats == LoginStats.LOGADO){
             System.out.println("Usuário deslogado.\n");
             return LoginStats.ANONIMO;
         }
 
-        System.out.print("Digite seu usuário: ");
-        String user = scanner.nextLine();
+        System.out.print("Digite seu email: ");
+        String email = scanner.nextLine();
 
-        // Todo: Poderia ser adicionada criptografia hash
         System.out.print("Digite sua senha: ");
         String senha = scanner.nextLine();
 
-        if (user.equals("admin") && senha.equals("1234")){
-            System.out.println("Login efetuado com sucesso.\n");
-            return LoginStats.LOGADO;
+        AuthRequest authRequest = new AuthRequest(email, senha);
+        AuthResponse response;
+        try {
+            response = funcionarioService.logar(authRequest);
+        }catch (RuntimeException e){
+            System.out.print("Email ou senha inválidos.");
+            return LoginStats.ANONIMO;
         }
 
-        System.out.println("Usuário ou senha incorretos.\n");
+        if (response.authenticated())
+            return LoginStats.LOGADO;
+
+        System.out.println("Email ou senha incorretos.\n");
         return LoginStats.ANONIMO;
     }
 
     // Opção 2
-    private static void CadastroOption(){
-        System.out.println("Not Implemented");
+    private void CadastroOption(Scanner scanner){
+        System.out.print("\nCadastro de Funcionário:\n\n");
+
+        System.out.print("Digite seu Nome: ");
+        String nome = scanner.nextLine();
+
+        System.out.print("Digite seu CPF: ");
+        String cpf = scanner.nextLine();
+
+        System.out.print("Digite seu E-mail: ");
+        String email = scanner.nextLine();
+
+        System.out.print("Digite seu telefone: ");
+        String telefone = scanner.nextLine();
+
+        System.out.print("Digite sua senha: ");
+        String senha = scanner.nextLine();
+
+        FuncionarioDTO novoCadastro = new FuncionarioDTO(null,nome, cpf, email, senha, telefone);
+        try {
+            funcionarioService.cadastrarFuncionario(novoCadastro);
+
+            System.out.print("Funcionário cadastrado com sucesso.\n");
+        } catch (IllegalArgumentException e) {
+            System.out.printf("Campos preenchidos incorretamente. %s\n", e.getMessage());
+        }
     }
 
-    // Opção 3
-    private static void SecureTypesViewOption(){
+    // Opção 3 -> Futuramente Dentro de SecureController
+    private void SecureTypesViewOption(){
         // Todo: Puxar do banco de dados
         List<String> secureTypes = List.of(
                 "Seguro de Vida",
@@ -152,23 +218,8 @@ public class ConsoleMenu {
         System.out.println();
     }
 
-    // Opção 4
-    private static void ManageClientsOption() {
-        System.out.println("Not Implemented");
-    }
-
-    // Opção 5
-    private static void ManageSecuresOption() {
-        System.out.println("Not Implemented");
-    }
-
-    // Opção 6
-    private static void ManageApoliciesOption() {
-        System.out.println("Not Implemented");
-    }
-
     // Opção 7
-    private static void ViewDashboardOption() {
+    private void ViewDashboardOption() {
         System.out.println("Not Implemented");
     }
 }

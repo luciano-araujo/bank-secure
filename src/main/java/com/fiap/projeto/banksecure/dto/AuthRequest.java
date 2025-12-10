@@ -1,6 +1,9 @@
 package com.fiap.projeto.banksecure.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public record AuthRequest(
-        String email,
-        String senha
+        @NotBlank @Email String email,
+        @NotBlank String senha
 ) {}
