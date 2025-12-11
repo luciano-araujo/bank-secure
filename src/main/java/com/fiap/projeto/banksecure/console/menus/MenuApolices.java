@@ -1,7 +1,10 @@
 package com.fiap.projeto.banksecure.console.menus;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Scanner;
 
+@Component
 public class MenuApolices {
     // Opção 6 - Futuramente ApoliciesController
     public void start(Scanner scanner) {

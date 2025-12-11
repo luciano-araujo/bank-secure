@@ -5,20 +5,21 @@ import com.fiap.projeto.banksecure.dto.AuthRequest;
 import com.fiap.projeto.banksecure.dto.AuthResponse;
 import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.repository.FuncionarioRepository;
-import jakarta.persistence.Column;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class FuncionarioService {
-    @Autowired
-    private FuncionarioRepository repository;
 
-    // Poderia ser adicionada para melhor criptografia
-    // @Autowired
-    // private PasswordEncoder passwordEncoder;
+    private final FuncionarioRepository funciRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void validarCadastro(Funcionario funcionario) {
         if (funcionario == null) {
@@ -44,52 +45,74 @@ public class FuncionarioService {
         if (funcionario.getTelefone() == null || funcionario.getTelefone().trim().isEmpty()) {
             throw new IllegalArgumentException("Telefone do funcionário é obrigatório.");
         }
-    }
 
-    public boolean validarLogin(Funcionario funcionarioCadastrado, String senhaDigitada) {
-        if (funcionarioCadastrado == null) {
-            return false;
+        if (funcionario.getDataNascimento() == null) {
+            throw new IllegalArgumentException("Data de nascimento é obrigatória.");
         }
 
-        if (senhaDigitada == null || senhaDigitada.isBlank()) {
-            return false;
+        if (funcionario.getDataNascimento().isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Data de nascimento não pode ser futura.");
         }
 
-        return funcionarioCadastrado.getSenha().equals(senhaDigitada);
+        int idade = Period.between(funcionario.getDataNascimento(), LocalDate.now()).getYears();
+        if (idade < 18) {
+            throw new IllegalArgumentException("O funcionário deve ter pelo menos 18 anos.");
+        }
     }
 
-    public Funcionario cadastrarFuncionario(FuncionarioDTO dto) throws IllegalArgumentException {
-        Funcionario funcionario = dto.toEntity();
+    public FuncionarioDTO cadastrarFuncionario(FuncionarioDTO funciDTO) throws IllegalArgumentException {
+        Funcionario funcionario = funciDTO.toEntitySemSenha();
+
+        // Criptografia da senha
+        String senhaCriptografada = passwordEncoder.encode(funciDTO.senha());
+        funcionario.setSenha(senhaCriptografada);
+
         validarCadastro(funcionario);
+        Funcionario funciCadastrado = funciRepository.save(funcionario);
 
-        return repository.save(funcionario);
+        return FuncionarioDTO.fromEntity(funciCadastrado);
     }
 
-    public Funcionario atualizarFuncionario(FuncionarioDTO dto) throws IllegalArgumentException {
-        Funcionario funcionario = dto.toEntity();
-        validarCadastro(funcionario);
+    public FuncionarioDTO atualizarFuncionario(UUID id, FuncionarioDTO funciDTO) throws IllegalArgumentException {
+        Funcionario funcionarioExistente = funciRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Funcionário nao encontrado id: " + id));
 
-        return repository.save(funcionario);
+        funcionarioExistente.setNome(funciDTO.nome());
+        funcionarioExistente.setCpf(funciDTO.cpf());
+        funcionarioExistente.setEmail(funciDTO.email());
+        funcionarioExistente.setTelefone(funciDTO.telefone());
+        funcionarioExistente.setDataNascimento(funciDTO.dataNascimento());
+
+        if (funciDTO.senha() != null && !funciDTO.senha().isBlank()) {
+            String senhaCriptografada = passwordEncoder.encode(funciDTO.senha());
+            funcionarioExistente.setSenha(senhaCriptografada);
+        }
+
+        validarCadastro(funcionarioExistente);
+        Funcionario funciAtualizado = funciRepository.save(funcionarioExistente);
+
+        return FuncionarioDTO.fromEntity(funciAtualizado);
     }
 
-    public void excluirFuncionario(UUID id) throws RuntimeException {
-        Funcionario funcionario = repository.findById(id)
+    public void deletarFuncionario(UUID id) throws RuntimeException {
+        Funcionario funcionario = funciRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
 
-        repository.delete(funcionario);
+        funciRepository.delete(funcionario);
     }
 
-    public Funcionario buscarPorId(UUID id) throws RuntimeException {
-        return repository.findById(id)
+    public FuncionarioDTO buscarPorId(UUID id) throws RuntimeException {
+        Funcionario funcionario = funciRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+
+        return FuncionarioDTO.fromEntity(funcionario);
     }
 
-    public AuthResponse logar(AuthRequest request) throws RuntimeException{
-        Funcionario funcionario = repository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public AuthResponse logar(AuthRequest request) {
+        Funcionario funcionario = funciRepository.findByEmail(request.email())
+                .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
 
-        // boolean senhaCorreta = passwordEncoder.matches(request.senha(), funcionario.getSenha());
-        boolean senhaCorreta = funcionario.getSenha().equals(request.senha());
+        boolean senhaCorreta = passwordEncoder.matches(request.senha(), funcionario.getSenha());
 
         if (!senhaCorreta) {
             throw new RuntimeException("Senha inválida");
@@ -100,5 +123,11 @@ public class FuncionarioService {
                 funcionario.getId(),
                 funcionario.getNome()
         );
+    }
+
+    public List<FuncionarioDTO> getAllFuncionarios() {
+        return funciRepository.findAll().stream()
+                .map(FuncionarioDTO::fromEntity)
+                .toList();
     }
 }
