@@ -1,8 +1,6 @@
 package com.fiap.projeto.banksecure.service;
 
 import com.fiap.projeto.banksecure.domain.Funcionario;
-import com.fiap.projeto.banksecure.dto.AuthRequest;
-import com.fiap.projeto.banksecure.dto.AuthResponse;
 import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -106,23 +104,6 @@ public class FuncionarioService {
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
 
         return FuncionarioDTO.fromEntity(funcionario);
-    }
-
-    public AuthResponse logar(AuthRequest request) {
-        Funcionario funcionario = funciRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
-
-        boolean senhaCorreta = passwordEncoder.matches(request.senha(), funcionario.getSenha());
-
-        if (!senhaCorreta) {
-            throw new RuntimeException("Senha inválida");
-        }
-
-        return new AuthResponse(
-                true,
-                funcionario.getId(),
-                funcionario.getNome()
-        );
     }
 
     public List<FuncionarioDTO> getAllFuncionarios() {

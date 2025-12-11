@@ -1,11 +1,11 @@
 package com.fiap.projeto.banksecure.service;
 
 import com.fiap.projeto.banksecure.domain.Cliente;
+import com.fiap.projeto.banksecure.dto.ClienteDTO;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -17,14 +17,13 @@ import java.util.UUID;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public Cliente buscarPorId(UUID id) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID do cliente é obrigatório");
-        }
+    public ClienteDTO buscarPorId(UUID id) throws RuntimeException {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        return clienteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+        return ClienteDTO.fromEntity(cliente);
     }
 
     public Cliente buscarPorCpf(String cpf) {
@@ -44,44 +43,42 @@ public class ClienteService {
         validarIdade(cliente.getDataNascimento());
     }
 
-    @Transactional
-    public Cliente cadastrar(Cliente cliente) {
+
+    public ClienteDTO cadastrarCliente(ClienteDTO clienteDTO) throws IllegalArgumentException {
+        Cliente cliente = clienteDTO.toEntitySemSenha();
+
+        String senhaCriptografada = passwordEncoder.encode(clienteDTO.senha());
+        cliente.setSenha(senhaCriptografada);
+
         validarCadastro(cliente);
-        validarIdade(cliente.getDataNascimento());
-        return clienteRepository.save(cliente);
+        Cliente clienteCadastrado = clienteRepository.save(cliente);
+
+        return ClienteDTO.fromEntity(clienteCadastrado);
     }
 
-    public List<Cliente> listarTodosClientes() {
-        return clienteRepository.findAll();
-    }
+    //atualizar ok
+    public ClienteDTO atualizarCliente(UUID id, ClienteDTO clienteDTO) throws IllegalArgumentException {
+        Cliente clienteExistente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente nao encontrado id: " + id));
 
-    @Transactional
-    public Cliente atualizar(UUID id, Cliente clienteAtualizado) {
-        // Busca cliente existente
-        Cliente clienteExistente = buscarPorId(id);
+        clienteExistente.setNome(clienteDTO.nome());
+        clienteExistente.setCpf(clienteDTO.cpf());
+        clienteExistente.setEmail(clienteDTO.email());
+        clienteExistente.setTelefone(clienteDTO.telefone());
+        clienteExistente.setDataNascimento(clienteDTO.dataNascimento());
 
-        // Valida idade se foi alterada
-        if (!clienteExistente.getDataNascimento().equals(clienteAtualizado.getDataNascimento())) {
-            validarIdade(clienteAtualizado.getDataNascimento());
+        if (clienteDTO.senha() != null && !clienteDTO.senha().isBlank()) {
+            String senhaCriptografada = passwordEncoder.encode(clienteDTO.senha());
+            clienteExistente.setSenha(senhaCriptografada);
         }
 
-        // Valida CPF se foi alterado
-        if (!clienteAtualizado.getCpf().equals(clienteExistente.getCpf())) {
-            validarCliente(clienteAtualizado);
-        }else{
-            validarClienteSimples(clienteAtualizado);
-        }
+        validarCadastro(clienteExistente);
+        Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
 
-        // Atualiza os campos
-        clienteExistente.setNome(clienteAtualizado.getNome());
-        clienteExistente.setCpf(clienteAtualizado.getCpf());
-        clienteExistente.setDataNascimento(clienteAtualizado.getDataNascimento());
-        clienteExistente.setTelefone(clienteAtualizado.getTelefone());
-
-        return clienteRepository.save(clienteExistente);
+        return ClienteDTO.fromEntity(clienteAtualizado);
     }
 
-    @Transactional
+/*    @Transactional
     public void excluir(UUID id) {
         // Verifica se cliente existe
         Cliente cliente = buscarPorId(id);
@@ -92,7 +89,7 @@ public class ClienteService {
         // }
 
         clienteRepository.delete(cliente);
-    }
+    }*/
 
     // [RF04] Cliente deve ter: Nome, CPF, Data de Nascimento.
     protected void validarCliente(Cliente cliente) {
@@ -161,7 +158,9 @@ public class ClienteService {
         }
     }
 
-    public List<Cliente> listarClientes() {
-        return clienteRepository.findAll();
+    public List<ClienteDTO> getAllClientes(){
+        return clienteRepository.findAll().stream()
+                .map(ClienteDTO::fromEntity)
+                .toList();
     }
 }

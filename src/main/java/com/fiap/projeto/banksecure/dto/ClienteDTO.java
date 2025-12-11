@@ -1,6 +1,7 @@
 package com.fiap.projeto.banksecure.dto;
 
 import com.fiap.projeto.banksecure.domain.Cliente;
+import com.fiap.projeto.banksecure.domain.Funcionario;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
@@ -61,6 +62,17 @@ public record ClienteDTO(
         cliente.setCpf(this.cpf());
         cliente.setEmail(this.email());
         cliente.setSenha(this.senha());
+        cliente.setTelefone(this.telefone());
+        cliente.setDataNascimento(this.dataNascimento());
+        return cliente;
+    }
+
+    public Cliente toEntitySemSenha() {
+        Cliente cliente = new Cliente();
+        cliente.setId(this.id());
+        cliente.setNome(this.nome());
+        cliente.setCpf(this.cpf());
+        cliente.setEmail(this.email());
         cliente.setTelefone(this.telefone());
         cliente.setDataNascimento(this.dataNascimento());
         return cliente;
