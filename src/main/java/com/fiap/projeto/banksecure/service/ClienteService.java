@@ -27,6 +27,18 @@ public class ClienteService {
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
     }
 
+    public Cliente buscarPorCpf(String cpf) {
+        Cliente cliente = clienteRepository.findAll().stream()
+                .filter(c -> c.getCpf().equals(cpf))
+                .findFirst().orElse(null);
+
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente não encontrado");
+        }
+
+        return cliente;
+    }
+
     public void validarCadastro(Cliente cliente) {
         validarClienteSimples(cliente);
         validarIdade(cliente.getDataNascimento());
@@ -48,19 +60,16 @@ public class ClienteService {
         // Busca cliente existente
         Cliente clienteExistente = buscarPorId(id);
 
-        // Valida dados do cliente atualizado
-        validarCliente(clienteAtualizado);
-
         // Valida idade se foi alterada
         if (!clienteExistente.getDataNascimento().equals(clienteAtualizado.getDataNascimento())) {
             validarIdade(clienteAtualizado.getDataNascimento());
         }
 
         // Valida CPF se foi alterado
-        if (!clienteExistente.getCpf().equals(clienteAtualizado.getCpf())) {
-            if (clienteRepository.existsByCpf(clienteAtualizado.getCpf())) {
-                throw new IllegalArgumentException("CPF já cadastrado para outro cliente");
-            }
+        if (!clienteAtualizado.getCpf().equals(clienteExistente.getCpf())) {
+            validarCliente(clienteAtualizado);
+        }else{
+            validarClienteSimples(clienteAtualizado);
         }
 
         // Atualiza os campos

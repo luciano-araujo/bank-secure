@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -23,8 +24,7 @@ import java.util.Scanner;
 @Component
 @RequiredArgsConstructor
 public class ConsoleMenu {
-    @Value("${skip.console:false}")
-    private boolean skipConsole;
+    private final boolean fazerCadastroInicial = true;
 
     private final ClienteService clienteService;
     private final FuncionarioService funcionarioService;
@@ -37,8 +37,27 @@ public class ConsoleMenu {
     private final MenuSeguro menuSeguro;
 
     public void start(){
-        if (this.skipConsole){
-            return;
+        if(fazerCadastroInicial){
+            Funcionario funcionario = new Funcionario();
+            funcionario.setCpf("123456789");
+            funcionario.setEmail("email@email.com");
+            funcionario.setNome("Funcionario Inicial");
+            funcionario.setSenha("123");
+            funcionario.setTelefone("11999999999");
+            LocalDate dataNascimento = LocalDate.of(1990, 1, 1);
+            funcionario.setDataNascimento(dataNascimento);
+
+            funcionarioService.cadastrarFuncionario(FuncionarioDTO.fromEntity(funcionario));
+
+            Cliente cliente = new Cliente();
+            cliente.setCpf("123");
+            cliente.setEmail("cliente@mail.com");
+            cliente.setNome("Cliente Inicial");
+            cliente.setSenha("123");
+            cliente.setTelefone("11988888888");
+            cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
+
+            clienteService.cadastrar(cliente);
         }
 
         String option;
@@ -66,7 +85,7 @@ public class ConsoleMenu {
                     break;
                 case "4":
                     if (loginValidator(loginStats)) {
-                        menuCliente.start(scanner);
+                        menuCliente.start(scanner, clienteService);
                     }
                     break;
                 case "5":
@@ -101,7 +120,7 @@ public class ConsoleMenu {
         menu += "=======================================================\n";
         menu += "\n";
         menu += loginStats == LoginStats.ANONIMO ? "1. Login\n" : "1. Deslogar\n";
-        menu += "2. Cadastro de Funcionário\n"; // Todo: Verificar a necessidade de adicionar
+        menu += "2. Cadastro de Funcionário\n";
         menu += "3. Visualizar seguros disponíveis\n";
 
         if (loginStats == LoginStats.LOGADO){
