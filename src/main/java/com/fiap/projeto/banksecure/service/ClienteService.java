@@ -2,23 +2,21 @@ package com.fiap.projeto.banksecure.service;
 
 import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
-
-    @Autowired
-    public ClienteService(ClienteRepository clienteRepository) {
-        this.clienteRepository = clienteRepository;
-    }
 
     public Cliente buscarPorId(UUID id) {
         if (id == null) {
@@ -107,6 +105,15 @@ public class ClienteService {
 
         if (cliente.getDataNascimento() == null) {
             throw new IllegalArgumentException("Data de nascimento é obrigatória.");
+        }
+
+        if (cliente.getDataNascimento().isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Data de nascimento não pode ser futura.");
+        }
+
+        int idade = Period.between(cliente.getDataNascimento(), LocalDate.now()).getYears();
+        if (idade < 18) {
+            throw new IllegalArgumentException("O cliente deve ter pelo menos 18 anos.");
         }
     }
 

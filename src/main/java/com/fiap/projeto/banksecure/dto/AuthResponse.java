@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record AuthResponse(
         boolean authenticated,
-        UUID FuncionarioId,
+        UUID funcionarioId,
         String nome
 ) {}

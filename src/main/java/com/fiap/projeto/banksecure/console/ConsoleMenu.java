@@ -11,6 +11,7 @@ import com.fiap.projeto.banksecure.dto.AuthResponse;
 import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.service.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,24 +21,20 @@ import java.util.List;
 import java.util.Scanner;
 
 @Component
+@RequiredArgsConstructor
 public class ConsoleMenu {
     @Value("${skip.console:false}")
     private boolean skipConsole;
 
-    @Autowired
-    private final ClienteService clienteService = new ClienteService();
-    @Autowired
-    private final FuncionarioService funcionarioService = new FuncionarioService();
-    @Autowired
-    private final SeguroService seguroService = new SeguroService();
-    @Autowired
-    private final CotacaoService cotacaoService = new CotacaoService();
-    @Autowired
-    private final ApoliceService apoliceService = new ApoliceService();
+    private final ClienteService clienteService;
+    private final FuncionarioService funcionarioService;
+    private final SeguroService seguroService;
+    private final CotacaoService cotacaoService;
+    private final ApoliceService apoliceService;
 
-    private final MenuCliente menuCliente = new MenuCliente();
-    private final MenuApolices menuApolices = new MenuApolices();
-    private final MenuSeguro menuSeguro = new MenuSeguro();
+    private final MenuCliente menuCliente;
+    private final MenuApolices menuApolices;
+    private final MenuSeguro menuSeguro;
 
     public void start(){
         if (this.skipConsole){
@@ -192,7 +189,7 @@ public class ConsoleMenu {
         System.out.print("Digite sua senha: ");
         String senha = scanner.nextLine();
 
-        FuncionarioDTO novoCadastro = new FuncionarioDTO(null,nome, cpf, email, senha, telefone);
+        FuncionarioDTO novoCadastro = new FuncionarioDTO(null,nome, cpf, email, senha, telefone, null);
         try {
             funcionarioService.cadastrarFuncionario(novoCadastro);
 
