@@ -19,6 +19,9 @@ public record SeguroDTO(
         @NotNull(message = "O valor do prêmio base é obrigatório")
         BigDecimal valorPremioBase,
 
+        @NotNull(message = "O valor de cobertura mínima é obrigatório")
+        String coberturaMinima,
+
         @NotBlank(message = "A descrição do seguro é obrigatória")
         String descricao,
 
@@ -42,6 +45,7 @@ public record SeguroDTO(
                 seguro.getTitulo(),
                 seguro.getValorPremioBase(),
                 seguro.getDescricao(),
+                seguro.getCoberturaMinima(),
                 seguro.getTipoSeguroEnum(),
                 apolicesDTO
         );
@@ -54,6 +58,7 @@ public record SeguroDTO(
         seguro.setTitulo(this.titulo());
         seguro.setValorPremioBase(this.valorPremioBase());
         seguro.setDescricao(this.descricao());
+        seguro.setValorPremioBase(this.valorPremioBase());
         seguro.setTipoSeguroEnum(this.tipoSeguroEnum());
         return seguro;
     }
