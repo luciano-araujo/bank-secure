@@ -56,7 +56,9 @@ public class ConsoleMenu {
 
             switch (option){
                 case "1":
+/*
                     loginStats = loginOption(scanner, loginStats);
+*/
                     break;
                 case "2":
                     CadastroOption(scanner);
@@ -142,7 +144,7 @@ public class ConsoleMenu {
     }
 
     // Opção 1
-    private LoginStats loginOption(Scanner scanner, LoginStats loginStats){
+/*    private LoginStats loginOption(Scanner scanner, LoginStats loginStats){
         if (loginStats == LoginStats.LOGADO){
             System.out.println("Usuário deslogado.\n");
             return LoginStats.ANONIMO;
@@ -168,7 +170,7 @@ public class ConsoleMenu {
 
         System.out.println("Email ou senha incorretos.\n");
         return LoginStats.ANONIMO;
-    }
+    }*/
 
     // Opção 2
     private void CadastroOption(Scanner scanner){

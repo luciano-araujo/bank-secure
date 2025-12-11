@@ -21,11 +21,6 @@ public class FuncionarioController {
     private final FuncionarioRepository funciRepository;
     private final FuncionarioService funcionarioService;
 
-    @PostMapping("/auth")
-    public ResponseEntity<AuthResponse> authenticateFuncionario(@RequestBody AuthRequest authRequest) {
-        return ResponseEntity.ok(funcionarioService.logar(authRequest));
-    }
-
     @GetMapping
     public ResponseEntity<List<FuncionarioDTO>> getAllFuncionarios() {
         return ResponseEntity.ok(funcionarioService.getAllFuncionarios());
