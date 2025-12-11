@@ -1,7 +1,6 @@
 package com.fiap.projeto.banksecure.controller;
 
 import com.fiap.projeto.banksecure.dto.SeguroDTO;
-import com.fiap.projeto.banksecure.repository.SeguroRepository;
 import com.fiap.projeto.banksecure.service.SeguroService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
