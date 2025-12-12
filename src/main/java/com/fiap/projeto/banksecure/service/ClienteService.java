@@ -2,6 +2,7 @@ package com.fiap.projeto.banksecure.service;
 
 import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.dto.ClienteDTO;
+import com.fiap.projeto.banksecure.repository.ApoliceRepository;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final ApoliceRepository apoliceRepository;
     private final PasswordEncoder passwordEncoder;
 
     public ClienteDTO buscarPorId(UUID id) throws RuntimeException {
@@ -43,7 +45,6 @@ public class ClienteService {
         validarIdade(cliente.getDataNascimento());
     }
 
-
     public ClienteDTO cadastrarCliente(ClienteDTO clienteDTO) throws IllegalArgumentException {
         Cliente cliente = clienteDTO.toEntitySemSenha();
 
@@ -56,7 +57,6 @@ public class ClienteService {
         return ClienteDTO.fromEntity(clienteCadastrado);
     }
 
-    //atualizar ok
     public ClienteDTO atualizarCliente(UUID id, ClienteDTO clienteDTO) throws IllegalArgumentException {
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente nao encontrado id: " + id));
@@ -78,18 +78,17 @@ public class ClienteService {
         return ClienteDTO.fromEntity(clienteAtualizado);
     }
 
-/*    @Transactional
-    public void excluir(UUID id) {
-        // Verifica se cliente existe
-        Cliente cliente = buscarPorId(id);
+    public void deletarCliente(UUID id) throws RuntimeException {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // TODO: Verificar se cliente tem apólices ativas antes de excluir
-        // if (apoliceRepository.existsByClienteId(id)) {
-        //     throw new IllegalStateException("Não é possível excluir cliente com apólices ativas");
-        // }
+        if (apoliceRepository.existsByClienteId(id)) {
+            throw new IllegalStateException("Não é possível excluir cliente com apólices ativas");
+        }
 
         clienteRepository.delete(cliente);
-    }*/
+    }
+
 
     // [RF04] Cliente deve ter: Nome, CPF, Data de Nascimento.
     protected void validarCliente(Cliente cliente) {

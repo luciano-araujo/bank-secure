@@ -1,6 +1,7 @@
 package com.fiap.projeto.banksecure.controller;
 
 import com.fiap.projeto.banksecure.dto.ClienteDTO;
+import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
 import com.fiap.projeto.banksecure.service.ClienteService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,18 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<ClienteDTO> createFuncionario(@RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> createCliente(@RequestBody ClienteDTO clienteDTO) {
         return ResponseEntity.ok(clienteService.cadastrarCliente(clienteDTO));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ClienteDTO> updateCliente(@PathVariable UUID id, @RequestBody ClienteDTO clienteDTO) {
+        return ResponseEntity.ok(clienteService.atualizarCliente(id, clienteDTO));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCliente(@PathVariable UUID id) {
+        clienteService.deletarCliente(id);
+        return ResponseEntity.noContent().build();
     }
 }
