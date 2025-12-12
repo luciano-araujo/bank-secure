@@ -1,21 +1,21 @@
 package com.fiap.projeto.banksecure.service;
 
 import com.fiap.projeto.banksecure.domain.Apolice;
-import com.fiap.projeto.banksecure.domain.Bem;
 import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.domain.Seguro;
 import com.fiap.projeto.banksecure.dto.ApoliceDTO;
-import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
+import com.fiap.projeto.banksecure.dto.CotacaoDTO;
+import com.fiap.projeto.banksecure.dto.DashboardDTO;
 import com.fiap.projeto.banksecure.repository.ApoliceRepository;
+import com.fiap.projeto.banksecure.repository.ClienteRepository;
+import com.fiap.projeto.banksecure.repository.SeguroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -23,22 +23,24 @@ public class ApoliceService {
 
     private final CotacaoService cotacaoService;
     private final ApoliceRepository apoliceRepository;
+    private final ClienteRepository clienteRepository;
+    private final SeguroRepository seguroRepository;
 
     public void validarCadastro(Apolice apolice) {
         if (apolice == null) {
-            throw new IllegalArgumentException("Apolice é obrigatória.");
+            throw new IllegalArgumentException("Apólice é obrigatória.");
         }
 
         if (apolice.getCliente() == null) {
             throw new IllegalArgumentException("A apólice deve estar atrelada a um cliente.");
         }
 
-        if (apolice.getTipoSeguroEnum() == null) {
-            throw new IllegalArgumentException("Tipo do seguro é obrigatório.");
+        if (apolice.getSeguro() == null) {
+            throw new IllegalArgumentException("A apólice deve estar atrelada a um seguro.");
         }
 
-        if ((apolice.getTotalCobertura() == null) || (BigDecimal.ZERO.compareTo(apolice.getTotalCobertura()) <= 0)) {
-            throw new IllegalArgumentException("Apólice deve ter total de cobertura.");
+        if (apolice.getPremioFinal() == null || apolice.getPremioFinal().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Apólice deve ter valor final positivo.");
         }
 
         if (apolice.getDataInicial() == null) {
@@ -48,69 +50,71 @@ public class ApoliceService {
         if (apolice.getDataVencimento() == null) {
             throw new IllegalArgumentException("Apólice deve ter data de vencimento.");
         }
-
-        if (apolice.getListaDeBens() == null) {
-            throw new IllegalArgumentException("Apólice deve estar relacionada a uma lista de bens.");
-        }
-
-        if (apolice.getSeguro() == null) {
-            throw new IllegalArgumentException("Apólice deve estar relacionada a um seguro.");
-        }
     }
 
-    public ApoliceDTO criarApolice(ApoliceDTO apoliceDTO) {
-        Apolice apolice = apoliceDTO.toEntity();
+    public ApoliceDTO criarApolice(ApoliceDTO dto) {
+        Cliente cliente = clienteRepository.findById(dto.clienteId())
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+
+        Seguro seguro = seguroRepository.findById(dto.seguroId())
+                .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
+
+        Apolice apolice = dto.toEntity();
+        apolice.setCliente(cliente);
+        apolice.setSeguro(seguro);
+
+        CotacaoDTO cotacao = cotacaoService.realizarCotacao(dto.clienteId(), dto.seguroId());
+        apolice.setPremioFinal(cotacao.premioFinal());
 
         validarCadastro(apolice);
-        Apolice apoliceCadastrada = apoliceRepository.save(apolice);
-
-        return ApoliceDTO.fromEntity(apoliceCadastrada);
+        Apolice salva = apoliceRepository.save(apolice);
+        return ApoliceDTO.fromEntity(salva);
     }
 
-    public ApoliceDTO renovarApolice(Apolice apolice) {
 
-        Apolice apoliceExistente = apoliceRepository.findById(apolice.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Apólice não encontrada com o ID: " + apolice.getId()));
+    public List<ApoliceDTO> listarApolicesAVencer() {
+        LocalDate hoje = LocalDate.now();
+        LocalDate limite = hoje.plusDays(30);
 
-        LocalDate novaDataVencimento = apoliceExistente.getDataVencimento().plusYears(1);
-        apoliceExistente.setDataVencimento(novaDataVencimento);
+        return apoliceRepository.findByDataVencimentoBetween(hoje, limite)
+                .stream()
+                .map(ApoliceDTO::fromEntity)
+                .toList();
+    }
 
-        validarCadastro(apoliceExistente);
-        Apolice apoliceRenovada = apoliceRepository.save(apoliceExistente);
+    public ApoliceDTO renovarApolice(UUID apoliceId) {
+        Apolice apoliceExistente = apoliceRepository.findById(apoliceId)
+                .orElseThrow(() -> new IllegalArgumentException("Apólice não encontrada com o ID: " + apoliceId));
+
+        Apolice novaApolice = new Apolice();
+        novaApolice.setCliente(apoliceExistente.getCliente());
+        novaApolice.setSeguro(apoliceExistente.getSeguro());
+        novaApolice.setTotalCobertura(apoliceExistente.getTotalCobertura());
+        novaApolice.setDataInicial(LocalDate.now());
+        novaApolice.setDataVencimento(LocalDate.now().plusYears(1));
+
+        CotacaoDTO cotacao = cotacaoService.realizarCotacao(
+                novaApolice.getCliente().getId(),
+                novaApolice.getSeguro().getId()
+        );
+        novaApolice.setPremioFinal(cotacao.premioFinal());
+
+        validarCadastro(novaApolice);
+        Apolice apoliceRenovada = apoliceRepository.save(novaApolice);
 
         return ApoliceDTO.fromEntity(apoliceRenovada);
     }
 
-    public Map<TipoSeguroEnum, ResumoDashboard> dashboardPorTipo(List<Apolice> apolices) {
 
-        Map<TipoSeguroEnum, ResumoDashboard> mapa = new HashMap<>();
-
-        if (apolices == null || apolices.isEmpty()) {
-            return mapa;
-        }
-
-        for (Apolice ap : apolices) {
-            if (ap == null || ap.getTipoSeguroEnum() == null) {
-                continue;
-            }
-
-            TipoSeguroEnum tipo = ap.getTipoSeguroEnum();
-
-            mapa.putIfAbsent(tipo, new ResumoDashboard());
-            ResumoDashboard resumo = mapa.get(tipo);
-
-            resumo.quantidade++;
-
-            if (ap.getTotalCobertura() != null) {
-                resumo.totalCobertura = resumo.totalCobertura.add(ap.getTotalCobertura());
-            }
-        }
-
-        return mapa;
+    public List<DashboardDTO> getDashboard() {
+        return apoliceRepository.findDashboardPorTipoSeguro();
     }
 
-    public static class ResumoDashboard {
-        public int quantidade = 0;
-        public BigDecimal totalCobertura = BigDecimal.ZERO;
+    public List<ApoliceDTO> listarTodasApolices() {
+        return apoliceRepository.findAll()
+                .stream()
+                .map(ApoliceDTO::fromEntity)
+                .toList();
     }
+
 }

@@ -5,29 +5,36 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "bens")
+@Table(name = "cotacoes")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bem {
+public class Cotacao {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private String titulo;
-
-    @Column(nullable = false)
-    private BigDecimal valor;
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
+    private Cliente cliente;
 
     @ManyToOne
-    @JoinColumn(name = "apolice_id", nullable = false)
-    private Apolice apolice;
+    @JoinColumn(name = "seguro_id", nullable = false)
+    private Seguro seguro;
+
+    @Column(nullable = false)
+    private BigDecimal premioBase;
+
+    @Column(nullable = false)
+    private BigDecimal premioFinal;
+
+    @Column(nullable = false)
+    private LocalDate dataCalculo;
 }
