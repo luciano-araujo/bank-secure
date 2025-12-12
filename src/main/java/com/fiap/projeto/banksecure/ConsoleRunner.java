@@ -1,9 +1,7 @@
 package com.fiap.projeto.banksecure;
 
-import com.fiap.projeto.banksecure.domain.Apolice;
-import com.fiap.projeto.banksecure.domain.Bem;
-import com.fiap.projeto.banksecure.domain.Cliente;
-import com.fiap.projeto.banksecure.domain.Funcionario;
+import com.fiap.projeto.banksecure.domain.*;
+import com.fiap.projeto.banksecure.dto.SeguroDTO;
 import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import com.fiap.projeto.banksecure.service.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -158,10 +156,10 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
     private void listarTiposSeguro() {
-        var tipos = seguroService.listarTiposDisponiveis();
+        List<SeguroDTO> seguros = seguroService.getAllSeguros();
         System.out.println("Tipos de seguro disponíveis:");
-        for (TipoSeguroEnum tipo : tipos) {
-            System.out.println("- " + tipo.name());
+        for (SeguroDTO seguro : seguros) {
+            System.out.println("- " + seguro.tipoSeguroEnum().name());
         }
         System.out.println();
     }
