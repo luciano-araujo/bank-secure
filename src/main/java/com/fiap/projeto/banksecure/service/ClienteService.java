@@ -26,6 +26,18 @@ public class ClienteService {
         return ClienteDTO.fromEntity(cliente);
     }
 
+    public Cliente buscarPorCpf(String cpf) {
+        Cliente cliente = clienteRepository.findAll().stream()
+                .filter(c -> c.getCpf().equals(cpf))
+                .findFirst().orElse(null);
+
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente não encontrado");
+        }
+
+        return cliente;
+    }
+
     public void validarCadastro(Cliente cliente) {
         validarClienteSimples(cliente);
         validarIdade(cliente.getDataNascimento());
