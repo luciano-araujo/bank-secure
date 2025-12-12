@@ -8,6 +8,7 @@ import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.domain.Funcionario;
 import com.fiap.projeto.banksecure.dto.AuthRequest;
 import com.fiap.projeto.banksecure.dto.AuthResponse;
+import com.fiap.projeto.banksecure.dto.ClienteDTO;
 import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.service.*;
 import lombok.Getter;
@@ -57,7 +58,7 @@ public class ConsoleMenu {
             cliente.setTelefone("11988888888");
             cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
 
-            clienteService.cadastrar(cliente);
+            clienteService.cadastrarCliente(ClienteDTO.fromEntity(cliente));
         }
 
         String option;

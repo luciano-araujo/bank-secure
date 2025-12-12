@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface ApoliceRepository extends JpaRepository<Apolice, UUID> {
+    boolean existsByClienteId(UUID clienteId);
 }
