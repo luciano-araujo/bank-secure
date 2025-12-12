@@ -3,7 +3,10 @@ package com.fiap.projeto.banksecure.service;
 import com.fiap.projeto.banksecure.domain.Apolice;
 import com.fiap.projeto.banksecure.domain.Bem;
 import com.fiap.projeto.banksecure.domain.Cliente;
+import com.fiap.projeto.banksecure.domain.Seguro;
+import com.fiap.projeto.banksecure.dto.ApoliceDTO;
 import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
+import com.fiap.projeto.banksecure.repository.ApoliceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,65 +17,68 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Service
 public class ApoliceService {
 
-    private final CotacaoService cotacaoService = new CotacaoService();
+    private final CotacaoService cotacaoService;
+    private final ApoliceRepository apoliceRepository;
 
-    public Apolice criarApolice(Cliente cliente,
-                                TipoSeguroEnum tipoSeguro,
-                                List<Bem> bens) {
-
-        if (cliente == null) {
-            throw new IllegalArgumentException("Cliente é obrigatório para criar uma apólice.");
+    public void validarCadastro(Apolice apolice) {
+        if (apolice == null) {
+            throw new IllegalArgumentException("Apolice é obrigatória.");
         }
 
-        if (tipoSeguro == null) {
-            throw new IllegalArgumentException("Tipo de seguro é obrigatório para criar uma apólice.");
+        if (apolice.getCliente() == null) {
+            throw new IllegalArgumentException("A apólice deve estar atrelada a um cliente.");
         }
 
-        Apolice apolice = new Apolice();
-        apolice.setCliente(cliente);
-        apolice.setTipoSeguroEnum(tipoSeguro);
-        apolice.setDataVencimento(LocalDate.now().plusYears(1));
-
-        if (bens != null) {
-            for (Bem bem : bens) {
-                if (bem != null) {
-                    bem.setApolice(apolice);
-                    apolice.getListaDeBens().add(bem);
-                }
-            }
+        if (apolice.getTipoSeguroEnum() == null) {
+            throw new IllegalArgumentException("Tipo do seguro é obrigatório.");
         }
 
-        BigDecimal totalCobertura = cotacaoService.calcularTotalCobertura(apolice.getListaDeBens());
-        apolice.setTotalCobertura(totalCobertura);
+        if ((apolice.getTotalCobertura() == null) || (BigDecimal.ZERO.compareTo(apolice.getTotalCobertura()) <= 0)) {
+            throw new IllegalArgumentException("Apólice deve ter total de cobertura.");
+        }
 
-        return apolice;
+        if (apolice.getDataInicial() == null) {
+            throw new IllegalArgumentException("Apólice deve ter data de início.");
+        }
+
+        if (apolice.getDataVencimento() == null) {
+            throw new IllegalArgumentException("Apólice deve ter data de vencimento.");
+        }
+
+        if (apolice.getListaDeBens() == null) {
+            throw new IllegalArgumentException("Apólice deve estar relacionada a uma lista de bens.");
+        }
+
+        if (apolice.getSeguro() == null) {
+            throw new IllegalArgumentException("Apólice deve estar relacionada a um seguro.");
+        }
     }
 
-    public Apolice renovarApolice(Apolice apoliceAtual) {
-        if (apoliceAtual == null) {
-            throw new IllegalArgumentException("Apólice atual não pode ser nula para renovação.");
-        }
+    public ApoliceDTO criarApolice(ApoliceDTO apoliceDTO) {
+        Apolice apolice = apoliceDTO.toEntity();
 
-        Cliente cliente = apoliceAtual.getCliente();
-        TipoSeguroEnum tipo = apoliceAtual.getTipoSeguroEnum();
-        List<Bem> bensAtuais = apoliceAtual.getListaDeBens();
+        validarCadastro(apolice);
+        Apolice apoliceCadastrada = apoliceRepository.save(apolice);
 
-        List<Bem> bensCopiados = new ArrayList<>();
-        if (bensAtuais != null) {
-            for (Bem bem : bensAtuais) {
-                if (bem != null) {
-                    Bem copia = new Bem();
-                    copia.setDescricao(bem.getDescricao());
-                    copia.setValor(bem.getValor());
-                    bensCopiados.add(copia);
-                }
-            }
-        }
+        return ApoliceDTO.fromEntity(apoliceCadastrada);
+    }
 
-        return criarApolice(cliente, tipo, bensCopiados);
+    public ApoliceDTO renovarApolice(Apolice apolice) {
+
+        Apolice apoliceExistente = apoliceRepository.findById(apolice.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Apólice não encontrada com o ID: " + apolice.getId()));
+
+        LocalDate novaDataVencimento = apoliceExistente.getDataVencimento().plusYears(1);
+        apoliceExistente.setDataVencimento(novaDataVencimento);
+
+        validarCadastro(apoliceExistente);
+        Apolice apoliceRenovada = apoliceRepository.save(apoliceExistente);
+
+        return ApoliceDTO.fromEntity(apoliceRenovada);
     }
 
     public Map<TipoSeguroEnum, ResumoDashboard> dashboardPorTipo(List<Apolice> apolices) {
