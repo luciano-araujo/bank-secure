@@ -7,6 +7,7 @@ import com.fiap.projeto.banksecure.dto.SeguroDTO;
 import com.fiap.projeto.banksecure.repository.SeguroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,7 +32,7 @@ public class SeguroService {
             throw new IllegalArgumentException("Tipo do seguro é obrigatório.");
         }
 
-        if ((seguro.getValorPremioBase() == null) || (BigDecimal.ZERO.compareTo(seguro.getValorPremioBase()) <= 0)) {
+        if (seguro.getValorPremioBase() == null || seguro.getValorPremioBase().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Prêmio base deve ser maior que zero.");
         }
 
@@ -44,6 +45,7 @@ public class SeguroService {
         }
     }
 
+    @Transactional
     public SeguroDTO cadastrarSeguro(SeguroDTO seguroDTO) {
         Seguro seguro = seguroDTO.toEntity();
 
@@ -53,6 +55,7 @@ public class SeguroService {
         return SeguroDTO.fromEntity(seguroCadastrado);
     }
 
+    @Transactional
     public SeguroDTO atualizarSeguro(UUID id, SeguroDTO seguroDTO) throws IllegalArgumentException {
         Seguro seguroExistente = seguroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seguro não encontrado com o ID: " + id));
@@ -97,6 +100,7 @@ public class SeguroService {
         seguroRepository.delete(seguro);
     }
 
+    @Transactional(readOnly = true)
     public SeguroDTO buscarPorId(UUID id) throws RuntimeException {
         Seguro seguro = seguroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
@@ -104,6 +108,7 @@ public class SeguroService {
         return SeguroDTO.fromEntity(seguro);
     }
 
+    @Transactional(readOnly = true)
     public List<SeguroDTO> getAllSeguros() {
         return seguroRepository
                 .findAll()

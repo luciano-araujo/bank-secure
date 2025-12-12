@@ -83,7 +83,13 @@ public class MenuSeguro {
 
             System.out.print("Valor do prêmio base: ");
             String valorStr = scanner.nextLine();
-            BigDecimal valorPremioBase = new BigDecimal(valorStr);
+            BigDecimal valorPremioBase;
+            try {
+                valorPremioBase = parseBigDecimal(valorStr);
+            } catch (NumberFormatException nfe) {
+                System.out.println("Formato de valor inválido. Use números, ex: 1234.56 ou 1.234,56\n");
+                return;
+            }
 
             System.out.print("Cobertura mínima: ");
             String coberturaMinima = scanner.nextLine();
@@ -97,7 +103,13 @@ public class MenuSeguro {
             }
             System.out.print("Tipo do seguro (digite o nome exato): ");
             String tipoStr = scanner.nextLine();
-            TipoSeguroEnum tipo = TipoSeguroEnum.valueOf(tipoStr);
+            TipoSeguroEnum tipo = null;
+            try {
+                tipo = TipoSeguroEnum.valueOf(tipoStr);
+            } catch (IllegalArgumentException iae) {
+                System.out.println("Tipo de seguro inválido. Use um dos tipos listados.\n");
+                return;
+            }
 
             SeguroDTO dto = new SeguroDTO(null, titulo, valorPremioBase, coberturaMinima, descricao, tipo, List.of());
             seguroService.cadastrarSeguro(dto);
@@ -122,7 +134,15 @@ public class MenuSeguro {
 
             System.out.print("Novo valor do prêmio base (enter para manter): ");
             String valorStr = scanner.nextLine();
-            BigDecimal valorPremioBase = valorStr.isBlank() ? null : new BigDecimal(valorStr);
+            BigDecimal valorPremioBase = null;
+            if (!valorStr.isBlank()) {
+                try {
+                    valorPremioBase = parseBigDecimal(valorStr);
+                } catch (NumberFormatException nfe) {
+                    System.out.println("Formato de valor inválido. Use números, ex: 1234.56 ou 1.234,56\n");
+                    return;
+                }
+            }
 
             System.out.print("Nova cobertura mínima (enter para manter): ");
             String coberturaMinima = scanner.nextLine();
@@ -134,9 +154,17 @@ public class MenuSeguro {
 
             System.out.print("Novo tipo do seguro (enter para manter): ");
             String tipoStr = scanner.nextLine();
-            TipoSeguroEnum tipo = null;
-            if (!tipoStr.isBlank()) {
-                tipo = TipoSeguroEnum.valueOf(tipoStr);
+            tipoStr = tipoStr.trim();
+            TipoSeguroEnum tipo;
+            if (tipoStr.isBlank()) {
+                tipo = null;
+            } else {
+                try {
+                    tipo = TipoSeguroEnum.valueOf(tipoStr.trim());
+                } catch (IllegalArgumentException iae) {
+                    System.out.println("Tipo de seguro inválido. Use um dos tipos listados.\n");
+                    return;
+                }
             }
 
             SeguroDTO dto = new SeguroDTO(null, titulo, valorPremioBase, coberturaMinima, descricao, tipo, null);
@@ -162,5 +190,20 @@ public class MenuSeguro {
         } catch (Exception e) {
             System.out.println("Erro ao excluir seguro: " + e.getMessage() + "\n");
         }
+    }
+
+    private static BigDecimal parseBigDecimal(String input) {
+        if (input == null) throw new NumberFormatException("Entrada nula");
+        String s = input.trim().replaceAll("\\s+", "");
+        if (s.isEmpty()) throw new NumberFormatException("String vazia");
+        // aceita formatos com ponto ou vírgula como separador decimal
+        // remove ponto quando houver vírgula
+        if (s.contains(",")) {
+            s = s.replace(".", "");
+            s = s.replace(",", ".");
+        }
+        // também remove possíveis sinais de moeda e espaços
+        s = s.replace("$", "").replace("R$", "");
+        return new BigDecimal(s);
     }
 }

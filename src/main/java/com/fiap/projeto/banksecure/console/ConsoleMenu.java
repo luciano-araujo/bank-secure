@@ -6,10 +6,9 @@ import com.fiap.projeto.banksecure.console.menus.MenuSeguro;
 import com.fiap.projeto.banksecure.domain.Apolice;
 import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.domain.Funcionario;
-import com.fiap.projeto.banksecure.dto.AuthRequest;
-import com.fiap.projeto.banksecure.dto.AuthResponse;
-import com.fiap.projeto.banksecure.dto.ClienteDTO;
-import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
+import com.fiap.projeto.banksecure.domain.Seguro;
+import com.fiap.projeto.banksecure.dto.*;
+import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import com.fiap.projeto.banksecure.service.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,7 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 public class ConsoleMenu {
     private final boolean fazerCadastroInicial = true;
+    private final boolean comecarLogado = true;
 
     private final ClienteService clienteService;
     private final FuncionarioService funcionarioService;
@@ -60,11 +61,26 @@ public class ConsoleMenu {
             cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
 
             clienteService.cadastrarCliente(ClienteDTO.fromEntityFull(cliente));
+
+            Seguro seguro = new Seguro();
+            seguro.setTitulo("Seguro inicial");
+            seguro.setDescricao("Seguro inicial");
+            seguro.setValorPremioBase(new BigDecimal("20000"));
+            seguro.setCoberturaMinima("Teste");
+            seguro.setTipoSeguroEnum(TipoSeguroEnum.VIDA);
+
+            seguroService.cadastrarSeguro(SeguroDTO.fromEntity(seguro));
         }
+
 
         String option;
         Scanner scanner = new Scanner(System.in);
         LoginStats loginStats = LoginStats.ANONIMO;
+
+        if (comecarLogado){
+            System.out.println("Iniciando como usuário logado para facilitar os testes.");
+            loginStats = LoginStats.LOGADO;
+        }
 
         do {
             String menu = getMenu(loginStats);

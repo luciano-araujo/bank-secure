@@ -44,8 +44,8 @@ public record SeguroDTO(
                 seguro.getId(),
                 seguro.getTitulo(),
                 seguro.getValorPremioBase(),
-                seguro.getDescricao(),
                 seguro.getCoberturaMinima(),
+                seguro.getDescricao(),
                 seguro.getTipoSeguroEnum(),
                 apolicesDTO
         );
@@ -57,8 +57,8 @@ public record SeguroDTO(
         seguro.setId(this.id());
         seguro.setTitulo(this.titulo());
         seguro.setValorPremioBase(this.valorPremioBase());
+        seguro.setCoberturaMinima(this.coberturaMinima());
         seguro.setDescricao(this.descricao());
-        seguro.setValorPremioBase(this.valorPremioBase());
         seguro.setTipoSeguroEnum(this.tipoSeguroEnum());
         return seguro;
     }
