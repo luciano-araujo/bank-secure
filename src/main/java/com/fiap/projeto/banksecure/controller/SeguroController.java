@@ -1,8 +1,9 @@
 package com.fiap.projeto.banksecure.controller;
 
-import com.fiap.projeto.banksecure.dto.SeguroDTO;
+import com.fiap.projeto.banksecure.dto.SeguroRequest;
+import com.fiap.projeto.banksecure.dto.SeguroResponse;
 import com.fiap.projeto.banksecure.service.SeguroService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,35 +11,42 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/seguro")
-@RequiredArgsConstructor
+@RequestMapping("/api/seguros")
 public class SeguroController {
 
     private final SeguroService seguroService;
 
-    @GetMapping
-    public ResponseEntity<List<SeguroDTO>> getAllSeguros() {
-        return ResponseEntity.ok(seguroService.getAllSeguros());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<SeguroDTO> getSeguroById(@PathVariable UUID id) {
-        return ResponseEntity.ok(seguroService.buscarPorId(id));
+    public SeguroController(SeguroService seguroService) {
+        this.seguroService = seguroService;
     }
 
     @PostMapping
-    public ResponseEntity<SeguroDTO> createSeguro(@RequestBody SeguroDTO seguroDTO) {
-        return ResponseEntity.ok(seguroService.cadastrarSeguro(seguroDTO));
+    public ResponseEntity<SeguroResponse> cadastrar(@RequestBody SeguroRequest request) {
+        SeguroResponse response = seguroService.cadastrar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SeguroDTO> updateSeguro(@PathVariable UUID id, @RequestBody SeguroDTO seguroDTO) {
-        return ResponseEntity.ok(seguroService.atualizarSeguro(id, seguroDTO));
+    public ResponseEntity<SeguroResponse> alterar(@PathVariable UUID id, @RequestBody SeguroRequest request) {
+        SeguroResponse response = seguroService.alterar(id, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSeguro(@PathVariable UUID id) {
-        seguroService.deletarSeguro(id);
+    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
+        seguroService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SeguroResponse> buscarPorId(@PathVariable UUID id) {
+        SeguroResponse response = seguroService.buscarPorId(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SeguroResponse>> listarTodos() {
+        List<SeguroResponse> seguros = seguroService.listarTodos();
+        return ResponseEntity.ok(seguros);
     }
 }

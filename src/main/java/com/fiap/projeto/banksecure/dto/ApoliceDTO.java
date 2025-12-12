@@ -24,20 +24,12 @@ public record ApoliceDTO(
         @NotNull(message = "Obrigatório informar a data de vencimento da apólice")
         LocalDate dataVencimento,
 
-        @NotNull(message = "A lista de bens é obrigatória")
-        @Size(min = 1, message = "A apólice deve conter pelo menos um bem")
-        List<BemDTO> listaDeBens,
-
         @NotNull(message = "Obrigatório informar o ID do cliente")
         UUID seguroId
 ) {
 
     public static ApoliceDTO fromEntity(Apolice apolice) {
 
-        List<BemDTO> bens = apolice.getListaDeBens()
-                .stream()
-                .map(BemDTO::fromEntity)
-                .toList();
 
         return new ApoliceDTO(
                 apolice.getId(),
@@ -45,13 +37,10 @@ public record ApoliceDTO(
                 apolice.getTotalCobertura(),
                 apolice.getDataInicial(),
                 apolice.getDataVencimento(),
-                bens,
                 apolice.getSeguro().getId()
         );
     }
 
-    // Cliente e Seguro devem ser setados no serviço, pois precisam ser buscados no banco!!!
-    // A lista de bens deve ser convertida para entidades Bem no serviço
     public Apolice toEntity() {
         Apolice apolice = new Apolice();
         apolice.setId(this.id());
@@ -60,4 +49,5 @@ public record ApoliceDTO(
         apolice.setDataVencimento(this.dataVencimento());
         return apolice;
     }
+
 }

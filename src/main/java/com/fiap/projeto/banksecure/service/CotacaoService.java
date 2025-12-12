@@ -1,74 +1,81 @@
 package com.fiap.projeto.banksecure.service;
 
-import com.fiap.projeto.banksecure.domain.Bem;
-import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
+import com.fiap.projeto.banksecure.domain.Cliente;
+import com.fiap.projeto.banksecure.domain.Cotacao;
+import com.fiap.projeto.banksecure.domain.Seguro;
+import com.fiap.projeto.banksecure.dto.CotacaoDTO;
+import com.fiap.projeto.banksecure.repository.ClienteRepository;
+import com.fiap.projeto.banksecure.repository.CotacaoRepository;
+import com.fiap.projeto.banksecure.repository.SeguroRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class CotacaoService {
 
+    private final CotacaoRepository cotacaoRepository;
+    private final ClienteRepository clienteRepository;
+    private final SeguroRepository seguroRepository;
+
     private static final BigDecimal TAXA_PADRAO = new BigDecimal("0.05");
+    private static final BigDecimal BONUS_IDADE = new BigDecimal("100.00");
     private static final BigDecimal FATOR_RISCO = new BigDecimal("1.10");
-    private static final BigDecimal BONUS_VIDA = new BigDecimal("100.00");
+    private static final int IDADE_BONUS = 60;
 
-    public BigDecimal calcularTotalCobertura(List<Bem> bens) {
-        if (bens == null || bens.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
 
-        BigDecimal total = BigDecimal.ZERO;
+    public CotacaoDTO realizarCotacao(UUID clienteId, UUID seguroId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
-        for (Bem bem : bens) {
-            if (bem != null && bem.getValor() != null) {
-                total = total.add(bem.getValor());
-            }
-        }
+        Seguro seguro = seguroRepository.findById(seguroId)
+                .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
 
-        return total;
+        BigDecimal premioFinal = calcularPremioFinal(seguro.getValorPremioBase(), cliente);
+
+        Cotacao cotacao = new Cotacao();
+        cotacao.setCliente(cliente);
+        cotacao.setSeguro(seguro);
+        cotacao.setPremioBase(seguro.getValorPremioBase());
+        cotacao.setPremioFinal(premioFinal);
+        cotacao.setDataCalculo(LocalDate.now());
+
+        Cotacao salva = cotacaoRepository.save(cotacao);
+        return CotacaoDTO.fromEntity(salva);
     }
 
-    public BigDecimal calcularPremio(BigDecimal totalCobertura, TipoSeguroEnum tipo) {
-        if (totalCobertura == null || totalCobertura.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Total de cobertura deve ser maior que zero.");
+
+    private BigDecimal calcularPremioFinal(BigDecimal premioBase, Cliente cliente) {
+        BigDecimal premio = premioBase;
+        premio = premio.add(premioBase.multiply(TAXA_PADRAO));
+
+        if (calcularIdade(cliente.getDataNascimento()) > IDADE_BONUS) {
+            premio = premio.add(BONUS_IDADE);
         }
+        premio = premio.multiply(FATOR_RISCO);
 
-        if (tipo == null) {
-            throw new IllegalArgumentException("Tipo de seguro é obrigatório.");
-        }
-
-        BigDecimal taxaTipo = taxaPorTipo(tipo);
-
-        BigDecimal base = totalCobertura.multiply(taxaTipo);
-
-        BigDecimal valor = base.add(base.multiply(TAXA_PADRAO));
-
-        if (tipo == TipoSeguroEnum.VIDA) {
-            valor = valor.add(BONUS_VIDA);
-        }
-
-        valor = valor.multiply(FATOR_RISCO);
-
-        return valor.setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal taxaPorTipo(TipoSeguroEnum tipo) {
-        return switch (tipo) {
-            case RESIDENCIAL -> new BigDecimal("0.02");
-            case AUTOMOTIVO -> new BigDecimal("0.03");
-            case VIDA -> new BigDecimal("0.01");
-        };
+        return premio;
     }
 
     private int calcularIdade(LocalDate dataNascimento) {
-        if (dataNascimento == null) {
-            throw new IllegalArgumentException("Data de nascimento é obrigatória para cálculo de idade.");
-        }
         return Period.between(dataNascimento, LocalDate.now()).getYears();
+    }
+
+    public CotacaoDTO buscarPorId(UUID id) {
+        Cotacao cotacao = cotacaoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cotação não encontrada"));
+        return CotacaoDTO.fromEntity(cotacao);
+    }
+
+    public List<CotacaoDTO> getAllCotacoes() {
+        return cotacaoRepository.findAll().stream()
+                .map(CotacaoDTO::fromEntity)
+                .toList();
     }
 }
