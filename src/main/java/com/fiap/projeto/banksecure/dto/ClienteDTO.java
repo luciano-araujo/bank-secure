@@ -55,6 +55,18 @@ public record ClienteDTO(
         );
     }
 
+    public static ClienteDTO fromEntityFull(Cliente cliente) {
+        return new ClienteDTO(
+                cliente.getId(),
+                cliente.getNome(),
+                cliente.getCpf(),
+                cliente.getEmail(),
+                cliente.getSenha(),
+                cliente.getTelefone(),
+                cliente.getDataNascimento()
+        );
+    }
+
     public Cliente toEntity() {
         Cliente cliente = new Cliente();
         cliente.setId(this.id());

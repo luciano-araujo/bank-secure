@@ -1,6 +1,7 @@
 package com.fiap.projeto.banksecure.console.menus;
 
 import com.fiap.projeto.banksecure.domain.Cliente;
+import com.fiap.projeto.banksecure.dto.ClienteDTO;
 import com.fiap.projeto.banksecure.service.ClienteService;
 import org.springframework.stereotype.Component;
 
@@ -56,7 +57,7 @@ public class MenuCliente {
     }
 
     private void listarClientes(ClienteService clienteService) {
-        List<Cliente> clienteList = clienteService.listarClientes();
+        List<ClienteDTO> clienteList = clienteService.getAllClientes();
 
         if (clienteList.isEmpty()) {
             System.out.println("Nenhum cliente cadastrado.");
@@ -64,10 +65,10 @@ public class MenuCliente {
         }
 
         clienteList.forEach(c -> {
-            System.out.println("ID: " + c.getId());
-            System.out.println("Nome: " + c.getNome());
-            System.out.println("CPF: " + c.getCpf());
-            System.out.println("Data de Nascimento: " + c.getDataNascimento());
+            System.out.println("ID: " + c.id());
+            System.out.println("Nome: " + c.nome());
+            System.out.println("CPF: " + c.cpf());
+            System.out.println("Data de Nascimento: " + c.dataNascimento());
             System.out.println("---------------------------");
         });
     }
@@ -91,6 +92,7 @@ public class MenuCliente {
             System.out.print("Senha: ");
             String senha = scanner.nextLine();
 
+
             System.out.print("Telefone: ");
             String telefone = scanner.nextLine();
 
@@ -102,7 +104,7 @@ public class MenuCliente {
             cliente.setSenha(senha);
             cliente.setTelefone(telefone);
 
-            clienteService.cadastrar(cliente);
+            clienteService.cadastrarCliente(ClienteDTO.fromEntity(cliente));
 
             System.out.println("Cliente Cadastrado com sucesso!\n");
         } catch (DateTimeParseException e) {
@@ -148,7 +150,7 @@ public class MenuCliente {
             clienteExistente.setDataNascimento(dataNascimento);
             clienteExistente.setTelefone(telefone);
 
-            clienteService.atualizar(clienteExistente.getId(), clienteExistente);
+            clienteService.atualizarCliente(clienteExistente.getId(), ClienteDTO.fromEntity(clienteExistente));
 
             System.out.println("Cliente editado com sucesso!\n");
 
@@ -166,7 +168,7 @@ public class MenuCliente {
 
             Cliente cliente = clienteService.buscarPorCpf(cpf);
 
-            clienteService.excluir(cliente.getId());
+            clienteService.deletarCliente(cliente.getId());
 
             System.out.println("Cliente excluído com sucesso!\n");
 
