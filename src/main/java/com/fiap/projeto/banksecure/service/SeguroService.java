@@ -1,98 +1,79 @@
 package com.fiap.projeto.banksecure.service;
 
-import com.fiap.projeto.banksecure.domain.Apolice;
 import com.fiap.projeto.banksecure.domain.Seguro;
-import com.fiap.projeto.banksecure.dto.ApoliceDTO;
-import com.fiap.projeto.banksecure.dto.SeguroDTO;
+import com.fiap.projeto.banksecure.dto.SeguroRequest;
+import com.fiap.projeto.banksecure.dto.SeguroResponse;
 import com.fiap.projeto.banksecure.repository.SeguroRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Service
+
 public class SeguroService {
 
     private final SeguroRepository seguroRepository;
 
-    public void validarCadastro(Seguro seguro) {
-        if (seguro == null) {
-            throw new IllegalArgumentException("Seguro é obrigatório.");
-        }
-
-        if (seguro.getTitulo() == null || seguro.getTitulo().trim().isEmpty()) {
-            throw new IllegalArgumentException("Título do seguro é obrigatório.");
-        }
-
-        if (seguro.getTipoSeguroEnum() == null || seguro.getTipoSeguroEnum().toString().trim().isEmpty()) {
-            throw new IllegalArgumentException("Tipo do seguro é obrigatório.");
-        }
-
-        if ((seguro.getValorPremioBase() == null) || (BigDecimal.ZERO.compareTo(seguro.getValorPremioBase()) <= 0)) {
-            throw new IllegalArgumentException("Prêmio base deve ser maior que zero.");
-        }
-
-        if (seguro.getDescricao() == null || seguro.getDescricao().trim().isEmpty()) {
-            throw new IllegalArgumentException("Descrição do seguro é obrigatória.");
-        }
-
-        if (seguro.getCoberturaMinima() == null || seguro.getCoberturaMinima().trim().isEmpty()) {
-            throw new IllegalArgumentException("Cobertura Mínima do seguro é obrigatória.");
-        }
+    public SeguroService(SeguroRepository seguroRepository) {
+        this.seguroRepository = seguroRepository;
     }
 
-    public SeguroDTO cadastrarSeguro(SeguroDTO seguroDTO) {
-        Seguro seguro = seguroDTO.toEntity();
+    public SeguroResponse cadastrar(SeguroRequest request) {
+        validarSeguro(request.titulo(), request.valorPremioBase());
 
-        validarCadastro(seguro);
-        Seguro seguroCadastrado = seguroRepository.save(seguro);
+        Seguro seguro = new Seguro(
+                request.titulo(),
+                request.coberturaMinima(),
+                request.valorPremioBase()
+        );
 
-        return SeguroDTO.fromEntity(seguroCadastrado);
+        Seguro salvo = seguroRepository.save(seguro);
+        return SeguroResponse.fromEntity(salvo);
     }
 
-    public SeguroDTO atualizarSeguro(UUID id, SeguroDTO seguroDTO) throws IllegalArgumentException {
-        Seguro seguroExistente = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro não encontrado com o ID: " + id));
-
-        List<Apolice> apolices = seguroDTO.apolices().stream()
-                .map(ApoliceDTO::toEntity)
-                .toList();
-
-        seguroExistente.setTitulo(seguroDTO.titulo());
-        seguroExistente.setValorPremioBase(seguroDTO.valorPremioBase());
-        seguroExistente.setDescricao(seguroDTO.descricao());
-        seguroExistente.setCoberturaMinima(seguroDTO.coberturaMinima());
-        seguroExistente.setTipoSeguroEnum(seguroDTO.tipoSeguroEnum());
-        seguroExistente.setApolices(apolices);
-
-        validarCadastro(seguroExistente);
-        Seguro seguroAtualizado = seguroRepository.save(seguroExistente);
-
-        return SeguroDTO.fromEntity(seguroAtualizado);
-    }
-
-    public void deletarSeguro(UUID id) throws RuntimeException {
+    public SeguroResponse alterar(UUID id, SeguroRequest request) {
         Seguro seguro = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
 
-        seguroRepository.delete(seguro);
+        validarSeguro(request.titulo(), request.valorPremioBase());
+
+        seguro.setTitulo(request.titulo());
+        seguro.setCoberturaMinima(request.coberturaMinima());
+        seguro.setValorPremioBase(request.valorPremioBase());
+
+        Seguro atualizado = seguroRepository.save(seguro);
+        return SeguroResponse.fromEntity(atualizado);
     }
 
-    public SeguroDTO buscarPorId(UUID id) throws RuntimeException {
+    public void excluir(UUID id) {
+        if (!seguroRepository.existsById(id)) {
+            throw new IllegalArgumentException("Seguro não encontrado");
+        }
+        seguroRepository.deleteById(id);
+    }
+
+    public SeguroResponse buscarPorId(UUID id) {
         Seguro seguro = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
-
-        return SeguroDTO.fromEntity(seguro);
+                .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
+        return SeguroResponse.fromEntity(seguro);
     }
 
-    public List<SeguroDTO> getAllSeguros() {
-        return seguroRepository
-                .findAll()
+    public List<SeguroResponse> listarTodos() {
+        return seguroRepository.findAll()
                 .stream()
-                .map(SeguroDTO::fromEntity)
+                .map(SeguroResponse::fromEntity)
                 .toList();
+    }
+
+    // RF03 - Validação de Seguro
+    public void validarSeguro(String titulo, BigDecimal valorPremioBase) {
+        if (titulo == null || titulo.isBlank()) {
+            throw new IllegalArgumentException("Título é obrigatório");
+        }
+        if (valorPremioBase == null || valorPremioBase.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Valor de Prêmio Base deve ser um número decimal positivo");
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.fiap.projeto.banksecure.domain;
 
-import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,17 +7,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "seguros")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Seguro {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -26,19 +24,15 @@ public class Seguro {
     @Column(nullable = false)
     private String titulo;
 
-    @Column(nullable = false)
-    private BigDecimal valorPremioBase;
-
-    @Column(nullable = false)
-    private String descricao;
-
-    @Column(nullable = false)
+    @Column(name = "cobertura_minima")
     private String coberturaMinima;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoSeguroEnum tipoSeguroEnum;
+    @Column(name = "valor_premio_base", nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorPremioBase;
 
-    @OneToMany(mappedBy = "seguro", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Apolice> apolices = new ArrayList<>();
+    public Seguro(String titulo, String coberturaMinima, BigDecimal valorPremioBase) {
+        this.titulo = titulo;
+        this.coberturaMinima = coberturaMinima;
+        this.valorPremioBase = valorPremioBase;
+    }
 }
