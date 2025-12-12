@@ -28,7 +28,7 @@ public record ApoliceDTO(
         @Size(min = 1, message = "A apólice deve conter pelo menos um bem")
         List<BemDTO> listaDeBens,
 
-        @NotNull(message = "Obrigatório informar o ID do cliente")
+        @NotNull(message = "Obrigatório informar o ID do seguro")
         UUID seguroId
 ) {
 
