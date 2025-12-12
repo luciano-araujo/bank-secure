@@ -32,6 +32,7 @@ public class ConsoleMenu {
     private final SeguroService seguroService;
     private final CotacaoService cotacaoService;
     private final ApoliceService apoliceService;
+    private final AuthService authService;
 
     private final MenuCliente menuCliente;
     private final MenuApolices menuApolices;
@@ -58,7 +59,7 @@ public class ConsoleMenu {
             cliente.setTelefone("11988888888");
             cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
 
-            clienteService.cadastrarCliente(ClienteDTO.fromEntity(cliente));
+            clienteService.cadastrarCliente(ClienteDTO.fromEntityFull(cliente));
         }
 
         String option;
@@ -76,9 +77,7 @@ public class ConsoleMenu {
 
             switch (option){
                 case "1":
-/*
                     loginStats = loginOption(scanner, loginStats);
-*/
                     break;
                 case "2":
                     CadastroOption(scanner);
@@ -164,7 +163,7 @@ public class ConsoleMenu {
     }
 
     // Opção 1
-/*    private LoginStats loginOption(Scanner scanner, LoginStats loginStats){
+    private LoginStats loginOption(Scanner scanner, LoginStats loginStats){
         if (loginStats == LoginStats.LOGADO){
             System.out.println("Usuário deslogado.\n");
             return LoginStats.ANONIMO;
@@ -179,7 +178,7 @@ public class ConsoleMenu {
         AuthRequest authRequest = new AuthRequest(email, senha);
         AuthResponse response;
         try {
-            response = funcionarioService.logar(authRequest);
+            response = authService.login(authRequest);
         }catch (RuntimeException e){
             System.out.print("Email ou senha inválidos.");
             return LoginStats.ANONIMO;
@@ -190,7 +189,7 @@ public class ConsoleMenu {
 
         System.out.println("Email ou senha incorretos.\n");
         return LoginStats.ANONIMO;
-    }*/
+    }
 
     // Opção 2
     private void CadastroOption(Scanner scanner){
