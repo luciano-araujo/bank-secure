@@ -57,32 +57,16 @@ public class SeguroService {
         Seguro seguroExistente = seguroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seguro não encontrado com o ID: " + id));
 
-        if(!(seguroDTO.titulo() == null || seguroDTO.titulo().trim().isBlank())) {
-            seguroExistente.setTitulo(seguroDTO.titulo());
-        }
+        List<Apolice> apolices = seguroDTO.apolices().stream()
+                .map(ApoliceDTO::toEntity)
+                .toList();
 
-        if(!(seguroDTO.valorPremioBase() == null || seguroDTO.valorPremioBase().toString().trim().isEmpty())) {
-            seguroExistente.setValorPremioBase(seguroDTO.valorPremioBase());
-        }
-
-        if(!(seguroDTO.descricao() == null || seguroDTO.descricao().trim().isBlank())) {
-            seguroExistente.setDescricao(seguroDTO.descricao());
-        }
-
-        if(!(seguroDTO.coberturaMinima() == null || seguroDTO.coberturaMinima().trim().isBlank())) {
-            seguroExistente.setCoberturaMinima(seguroDTO.coberturaMinima());
-        }
-
-        if(!(seguroDTO.tipoSeguroEnum() == null || seguroDTO.tipoSeguroEnum().toString().trim().isBlank())) {
-            seguroExistente.setTipoSeguroEnum(seguroDTO.tipoSeguroEnum());
-        }
-
-        if(seguroDTO.apolices() != null && !seguroDTO.apolices().isEmpty()) {
-            List<Apolice> apolices = seguroDTO.apolices().stream()
-                    .map(ApoliceDTO::toEntity)
-                    .toList();
-            seguroExistente.setApolices(apolices);
-        }
+        seguroExistente.setTitulo(seguroDTO.titulo());
+        seguroExistente.setValorPremioBase(seguroDTO.valorPremioBase());
+        seguroExistente.setDescricao(seguroDTO.descricao());
+        seguroExistente.setCoberturaMinima(seguroDTO.coberturaMinima());
+        seguroExistente.setTipoSeguroEnum(seguroDTO.tipoSeguroEnum());
+        seguroExistente.setApolices(apolices);
 
         validarCadastro(seguroExistente);
         Seguro seguroAtualizado = seguroRepository.save(seguroExistente);
