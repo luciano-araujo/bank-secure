@@ -210,7 +210,26 @@ public class ConsoleMenu {
         System.out.print("Digite sua senha: ");
         String senha = scanner.nextLine();
 
-        FuncionarioDTO novoCadastro = new FuncionarioDTO(null,nome, cpf, email, senha, telefone, null);
+        System.out.print("Digite sua data de nascimento (AAAA-MM-DD): ");
+        String dataNascimentoTexto = scanner.nextLine().trim();
+
+        LocalDate dataNascimento;
+        try {
+            dataNascimento = LocalDate.parse(dataNascimentoTexto);
+        } catch (Exception e) {
+            System.out.println("Data de nascimento em formato inválido. Use o formato AAAA-MM-DD.");
+            return;
+        }
+
+        FuncionarioDTO novoCadastro = new FuncionarioDTO(
+                null,
+                nome,
+                cpf,
+                email,
+                senha,
+                telefone,
+                dataNascimento
+        );
         try {
             funcionarioService.cadastrarFuncionario(novoCadastro);
 
@@ -241,4 +260,3 @@ public class ConsoleMenu {
         System.out.println("Not Implemented");
     }
 }
-
