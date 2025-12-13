@@ -221,15 +221,7 @@ public class ConsoleMenu {
             return;
         }
 
-        FuncionarioDTO novoCadastro = new FuncionarioDTO(
-                null,
-                nome,
-                cpf,
-                email,
-                senha,
-                telefone,
-                dataNascimento
-        );
+        FuncionarioDTO novoCadastro = new FuncionarioDTO(null,nome, cpf, email, senha, telefone, dataNascimento);
         try {
             funcionarioService.cadastrarFuncionario(novoCadastro);
 

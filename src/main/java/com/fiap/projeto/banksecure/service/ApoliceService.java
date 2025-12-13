@@ -1,11 +1,14 @@
 package com.fiap.projeto.banksecure.service;
 
 import com.fiap.projeto.banksecure.domain.Apolice;
+import com.fiap.projeto.banksecure.domain.Bem;
 import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.domain.Seguro;
 import com.fiap.projeto.banksecure.dto.ApoliceDTO;
+import com.fiap.projeto.banksecure.dto.BemCadastroDTO;
 import com.fiap.projeto.banksecure.dto.CotacaoDTO;
 import com.fiap.projeto.banksecure.dto.DashboardDTO;
+import com.fiap.projeto.banksecure.dto.NovaApoliceDTO;
 import com.fiap.projeto.banksecure.repository.ApoliceRepository;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
 import com.fiap.projeto.banksecure.repository.SeguroRepository;
@@ -14,8 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -52,18 +57,36 @@ public class ApoliceService {
         }
     }
 
-    public ApoliceDTO criarApolice(ApoliceDTO dto) {
+    public ApoliceDTO criarApolice(NovaApoliceDTO dto) {
         Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
         Seguro seguro = seguroRepository.findById(dto.seguroId())
                 .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
 
-        Apolice apolice = dto.toEntity();
+        BigDecimal coberturaTotal = calcularCobertura(dto.bens());
+        if (coberturaTotal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("É obrigatório informar ao menos um bem com valor positivo.");
+        }
+
+        BigDecimal coberturaConsiderada = coberturaTotal.max(seguro.getCoberturaMinima());
+
+        Apolice apolice = new Apolice();
         apolice.setCliente(cliente);
         apolice.setSeguro(seguro);
+        apolice.setTipoSeguro(seguro.getTipo());
+        apolice.setDataInicial(dto.dataInicial());
+        apolice.setDataVencimento(dto.dataVencimento());
+        apolice.setTotalCobertura(coberturaConsiderada);
+        apolice.setListaDeBens(dto.bens().stream()
+                .map(bemDTO -> toBem(bemDTO, apolice))
+                .collect(Collectors.toCollection(ArrayList::new)));
 
-        CotacaoDTO cotacao = cotacaoService.realizarCotacao(dto.clienteId(), dto.seguroId());
+        CotacaoDTO cotacao = cotacaoService.realizarCotacao(
+                dto.clienteId(),
+                dto.seguroId(),
+                coberturaConsiderada
+        );
         apolice.setPremioFinal(cotacao.premioFinal());
 
         validarCadastro(apolice);
@@ -71,6 +94,20 @@ public class ApoliceService {
         return ApoliceDTO.fromEntity(salva);
     }
 
+    private Bem toBem(BemCadastroDTO dto, Apolice apolice) {
+        Bem bem = new Bem();
+        bem.setTitulo(dto.titulo());
+        bem.setValor(dto.valor());
+        bem.setApolice(apolice);
+        return bem;
+    }
+
+    private BigDecimal calcularCobertura(List<BemCadastroDTO> bens) {
+        return bens.stream()
+                .map(BemCadastroDTO::valor)
+                .filter(valor -> valor != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     public List<ApoliceDTO> listarApolicesAVencer() {
         LocalDate hoje = LocalDate.now();
@@ -89,13 +126,38 @@ public class ApoliceService {
         Apolice novaApolice = new Apolice();
         novaApolice.setCliente(apoliceExistente.getCliente());
         novaApolice.setSeguro(apoliceExistente.getSeguro());
-        novaApolice.setTotalCobertura(apoliceExistente.getTotalCobertura());
+        novaApolice.setTipoSeguro(apoliceExistente.getSeguro().getTipo());
         novaApolice.setDataInicial(LocalDate.now());
         novaApolice.setDataVencimento(LocalDate.now().plusYears(1));
 
+        List<Bem> bensRenovados = apoliceExistente.getListaDeBens().stream()
+                .map(bemAntigo -> {
+                    Bem bem = new Bem();
+                    bem.setTitulo(bemAntigo.getTitulo());
+                    bem.setValor(bemAntigo.getValor());
+                    bem.setApolice(novaApolice);
+                    return bem;
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        novaApolice.setListaDeBens(bensRenovados);
+
+        BigDecimal somaBens = bensRenovados.stream()
+                .map(Bem::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (somaBens.compareTo(BigDecimal.ZERO) <= 0) {
+            somaBens = apoliceExistente.getTotalCobertura();
+        }
+
+        BigDecimal cobertura = somaBens.max(apoliceExistente.getSeguro().getCoberturaMinima());
+
+        novaApolice.setTotalCobertura(cobertura);
+
         CotacaoDTO cotacao = cotacaoService.realizarCotacao(
                 novaApolice.getCliente().getId(),
-                novaApolice.getSeguro().getId()
+                novaApolice.getSeguro().getId(),
+                cobertura
         );
         novaApolice.setPremioFinal(cotacao.premioFinal());
 

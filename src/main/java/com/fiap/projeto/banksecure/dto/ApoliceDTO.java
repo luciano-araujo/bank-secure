@@ -1,8 +1,7 @@
 package com.fiap.projeto.banksecure.dto;
 
 import com.fiap.projeto.banksecure.domain.Apolice;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,43 +10,29 @@ import java.util.UUID;
 
 public record ApoliceDTO(
         UUID id,
-
-        @NotNull(message = "Obrigatório informar o ID do cliente")
         UUID clienteId,
-
-        @NotNull(message = "Obrigatório informar o valor total da cobertura")
+        UUID seguroId,
+        TipoSeguroEnum tipoSeguro,
         BigDecimal totalCobertura,
-
-        @NotNull(message = "Obrigatório informar a data de início da apólice")
+        BigDecimal premioFinal,
         LocalDate dataInicial,
-
-        @NotNull(message = "Obrigatório informar a data de vencimento da apólice")
         LocalDate dataVencimento,
-
-        @NotNull(message = "Obrigatório informar o ID do cliente")
-        UUID seguroId
+        List<BemDTO> bens
 ) {
-
     public static ApoliceDTO fromEntity(Apolice apolice) {
-
-
         return new ApoliceDTO(
                 apolice.getId(),
                 apolice.getCliente().getId(),
+                apolice.getSeguro().getId(),
+                apolice.getTipoSeguro(),
                 apolice.getTotalCobertura(),
+                apolice.getPremioFinal(),
                 apolice.getDataInicial(),
                 apolice.getDataVencimento(),
-                apolice.getSeguro().getId()
+                apolice.getListaDeBens()
+                        .stream()
+                        .map(BemDTO::fromEntity)
+                        .toList()
         );
     }
-
-    public Apolice toEntity() {
-        Apolice apolice = new Apolice();
-        apolice.setId(this.id());
-        apolice.setTotalCobertura(this.totalCobertura());
-        apolice.setDataInicial(this.dataInicial());
-        apolice.setDataVencimento(this.dataVencimento());
-        return apolice;
-    }
-
 }

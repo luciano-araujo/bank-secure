@@ -20,20 +20,14 @@ export interface Funcionario {
   senha?: string;
 }
 
+export type TipoSeguro = 'RESIDENCIAL' | 'AUTOMOTIVO' | 'VIDA';
+
 export interface Seguro {
   id: UUID;
   titulo: string;
+  tipo: TipoSeguro;
   coberturaMinima: number;
   valorPremioBase: number;
-}
-
-export interface Apolice {
-  id: UUID;
-  clienteId: UUID;
-  seguroId: UUID;
-  totalCobertura: number;
-  dataInicial: string;
-  dataVencimento: string;
 }
 
 export interface Bem {
@@ -41,6 +35,31 @@ export interface Bem {
   titulo: string;
   valor: number;
   apoliceId: UUID;
+}
+
+export interface NewBem {
+  titulo: string;
+  valor: number;
+}
+
+export interface Apolice {
+  id: UUID;
+  clienteId: UUID;
+  seguroId: UUID;
+  tipoSeguro: TipoSeguro;
+  totalCobertura: number;
+  premioFinal: number;
+  dataInicial: string;
+  dataVencimento: string;
+  bens: Bem[];
+}
+
+export interface NovaApolicePayload {
+  clienteId: UUID;
+  seguroId: UUID;
+  dataInicial: string;
+  dataVencimento: string;
+  bens: Array<{ titulo: string; valor: number }>;
 }
 
 export interface Cotacao {
@@ -52,9 +71,14 @@ export interface Cotacao {
   dataCalculo: string;
 }
 
+export interface CotacaoRequest {
+  clienteId: UUID;
+  seguroId: UUID;
+  coberturaTotal: number;
+}
+
 export interface DashboardItem {
   tipoSeguro: string;
   quantidadeApolices: number;
   valorTotalArrecadado: number;
 }
-

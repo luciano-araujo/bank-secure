@@ -16,7 +16,6 @@ public record BemDTO(
         @NotNull(message = "O valor do bem é obrigatório")
         BigDecimal valor,
 
-        @NotNull(message = "O ID da apólice é obrigatório")
         UUID apoliceId
 ) {
     public static BemDTO fromEntity(Bem bem) {

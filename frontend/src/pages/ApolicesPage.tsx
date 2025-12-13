@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react';
 import {
   Alert,
+  Box,
   Button,
+  Chip,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Paper,
@@ -15,33 +18,38 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import SectionHeader from '../components/SectionHeader';
 import EntityDialog from '../components/EntityDialog';
 import LoadingState from '../components/LoadingState';
 import api from '../services/api';
 import { fetchApolices, fetchClientes, fetchSeguros } from '../services/endpoints';
-import type { Apolice, Cliente, Seguro } from '../types';
+import type { Apolice, Cliente, NovaApolicePayload, Seguro } from '../types';
 import { formatCurrency, formatDate, normalizeDateInput } from '../utils/formatters';
 import { getErrorMessage } from '../utils/errorMessage';
+
+type BemFormState = { titulo: string; valor: string };
 
 type ApoliceFormState = {
   clienteId: string;
   seguroId: string;
-  totalCobertura: string;
   dataInicial: string;
   dataVencimento: string;
+  bens: BemFormState[];
 };
 
 const emptyForm: ApoliceFormState = {
   clienteId: '',
   seguroId: '',
-  totalCobertura: '',
   dataInicial: '',
   dataVencimento: '',
+  bens: [{ titulo: '', valor: '' }],
 };
 
 const ApolicesPage = () => {
@@ -66,13 +74,7 @@ const ApolicesPage = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const createMutation = useMutation({
-    mutationFn: async (payload: ApoliceFormState) =>
-      (
-        await api.post<Apolice>('/apolice', {
-          ...payload,
-          totalCobertura: Number(payload.totalCobertura),
-        })
-      ).data,
+    mutationFn: async (payload: NovaApolicePayload) => (await api.post<Apolice>('/apolice', payload)).data,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['apolices'] });
       setIsDialogOpen(false);
@@ -91,18 +93,61 @@ const ApolicesPage = () => {
   });
 
   const customerLookup = useMemo(() => new Map(clientes?.map((cliente) => [cliente.id, cliente.nome])), [clientes]);
-  const productLookup = useMemo(() => new Map(seguros?.map((seguro) => [seguro.id, seguro.titulo])), [seguros]);
+  const productLookup = useMemo(() => new Map(seguros?.map((seguro) => [seguro.id, seguro])), [seguros]);
+
+  const totalCobertura = formValues.bens.reduce(
+    (sum, bem) => (sum += Number(bem.valor || 0)),
+    0,
+  );
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    createMutation.mutate(formValues);
+    const bensPayload = formValues.bens
+      .filter((bem) => bem.titulo.trim() && Number(bem.valor) > 0)
+      .map((bem) => ({
+        titulo: bem.titulo.trim(),
+        valor: Number(bem.valor),
+      }));
+
+    if (!bensPayload.length) {
+      setErrorMessage('Inclua ao menos um bem com valor positivo.');
+      return;
+    }
+
+    const payload: NovaApolicePayload = {
+      clienteId: formValues.clienteId,
+      seguroId: formValues.seguroId,
+      dataInicial: formValues.dataInicial,
+      dataVencimento: formValues.dataVencimento,
+      bens: bensPayload,
+    };
+
+    createMutation.mutate(payload);
+  };
+
+  const updateBem = (index: number, field: keyof BemFormState, value: string) => {
+    setFormValues((prev) => ({
+      ...prev,
+      bens: prev.bens.map((bem, idx) => (idx === index ? { ...bem, [field]: value } : bem)),
+    }));
+  };
+
+  const addBem = () => {
+    setFormValues((prev) => ({ ...prev, bens: [...prev.bens, { titulo: '', valor: '' }] }));
+  };
+
+  const removeBem = (index: number) => {
+    setFormValues((prev) => ({
+      ...prev,
+      bens: prev.bens.filter((_, idx) => idx !== index),
+    }));
   };
 
   return (
     <Stack spacing={3}>
       <SectionHeader
         title="Apólices"
-        subtitle="Controle as apólices vigentes, total de cobertura e datas de vigência."
+        subtitle="Controle as apólices vigentes, os bens segurados e acompanhe a vigência."
         action={
           <Button
             variant="contained"
@@ -136,12 +181,14 @@ const ApolicesPage = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Cliente</TableCell>
-                  <TableCell>Produto</TableCell>
+                  <TableCell>Seguro</TableCell>
+                  <TableCell>Tipo</TableCell>
                   <TableCell>Cobertura</TableCell>
-                  <TableCell>Início</TableCell>
-                  <TableCell>Vencimento</TableCell>
-                  <TableCell width={120} align="center">
-                    Renovar
+                  <TableCell>Prêmio</TableCell>
+                  <TableCell>Período</TableCell>
+                  <TableCell>Bens</TableCell>
+                  <TableCell width={140} align="center">
+                    Ações
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -149,20 +196,37 @@ const ApolicesPage = () => {
                 {apolices?.map((apolice) => (
                   <TableRow key={apolice.id}>
                     <TableCell>{customerLookup.get(apolice.clienteId) ?? apolice.clienteId.slice(0, 8)}</TableCell>
-                    <TableCell>{productLookup.get(apolice.seguroId) ?? apolice.seguroId.slice(0, 8)}</TableCell>
+                    <TableCell>{productLookup.get(apolice.seguroId)?.titulo ?? apolice.seguroId.slice(0, 8)}</TableCell>
+                    <TableCell>
+                      <Chip label={apolice.tipoSeguro} size="small" color="secondary" />
+                    </TableCell>
                     <TableCell>{formatCurrency(apolice.totalCobertura)}</TableCell>
-                    <TableCell>{formatDate(apolice.dataInicial)}</TableCell>
-                    <TableCell>{formatDate(apolice.dataVencimento)}</TableCell>
+                    <TableCell>{formatCurrency(apolice.premioFinal)}</TableCell>
+                    <TableCell>
+                      <Stack spacing={0.5}>
+                        <span>{formatDate(apolice.dataInicial)}</span>
+                        <span>{formatDate(apolice.dataVencimento)}</span>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">{apolice.bens.length} item(s)</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatCurrency(apolice.bens.reduce((acc, bem) => acc + bem.valor, 0))}
+                      </Typography>
+                    </TableCell>
                     <TableCell align="center">
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<ReplayRoundedIcon fontSize="small" />}
-                        onClick={() => renewMutation.mutate(apolice.id)}
-                        disabled={renewMutation.isPending}
-                      >
-                        Renovar
-                      </Button>
+                      <Tooltip title="Renovar apólice">
+                        <span>
+                          <IconButton
+                            color="primary"
+                            size="small"
+                            onClick={() => renewMutation.mutate(apolice.id)}
+                            disabled={renewMutation.isPending}
+                          >
+                            <ReplayRoundedIcon fontSize="small" />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -175,7 +239,10 @@ const ApolicesPage = () => {
       <EntityDialog
         open={isDialogOpen}
         title="Cadastro de apólice"
-        onClose={() => setIsDialogOpen(false)}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setFormValues(emptyForm);
+        }}
         onSubmit={handleSubmit}
         isSubmitting={createMutation.isPending}
       >
@@ -211,13 +278,6 @@ const ApolicesPage = () => {
             ))}
           </Select>
         </FormControl>
-        <TextField
-          label="Total de cobertura"
-          type="number"
-          required
-          value={formValues.totalCobertura}
-          onChange={(event) => setFormValues((prev) => ({ ...prev, totalCobertura: event.target.value }))}
-        />
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
           <TextField
             label="Data inicial"
@@ -236,10 +296,49 @@ const ApolicesPage = () => {
             onChange={(event) => setFormValues((prev) => ({ ...prev, dataVencimento: event.target.value }))}
           />
         </Stack>
+
+        <Box>
+          <Typography variant="subtitle2" gutterBottom>
+            Bens segurados
+          </Typography>
+          <Stack spacing={2}>
+            {formValues.bens.map((bem, index) => (
+              <Stack key={`bem-${index}`} direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="flex-start">
+                <TextField
+                  label="Título do bem"
+                  value={bem.titulo}
+                  onChange={(event) => updateBem(index, 'titulo', event.target.value)}
+                  required
+                  fullWidth
+                />
+                <TextField
+                  label="Valor segurado"
+                  type="number"
+                  value={bem.valor}
+                  onChange={(event) => updateBem(index, 'valor', event.target.value)}
+                  required
+                  fullWidth
+                />
+                {formValues.bens.length > 1 && (
+                  <Tooltip title="Remover bem">
+                    <IconButton color="error" onClick={() => removeBem(index)}>
+                      <DeleteOutlineRoundedIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Stack>
+            ))}
+            <Button variant="outlined" size="small" onClick={addBem}>
+              Adicionar bem
+            </Button>
+            <Typography variant="body2" color="text.secondary">
+              Cobertura estimada: <strong>{formatCurrency(totalCobertura)}</strong>
+            </Typography>
+          </Stack>
+        </Box>
       </EntityDialog>
     </Stack>
   );
 };
 
 export default ApolicesPage;
-

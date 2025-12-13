@@ -18,15 +18,17 @@ public class SeguroService {
 
     public SeguroDTO cadastrarSeguro(SeguroDTO dto) {
         Seguro seguro = dto.toEntity();
+        validarSeguro(seguro);
         Seguro saved = seguroRepository.save(seguro);
         return SeguroDTO.fromEntity(saved);
     }
 
     public SeguroDTO atualizarSeguro(UUID id, SeguroDTO seguroDTO) {
         Seguro seguroExistente = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro não encontrado com o ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Seguro nÆo encontrado com o ID: " + id));
 
         seguroExistente.setTitulo(seguroDTO.titulo());
+        seguroExistente.setTipo(seguroDTO.tipo());
         seguroExistente.setCoberturaMinima(seguroDTO.coberturaMinima());
         seguroExistente.setValorPremioBase(seguroDTO.valorPremioBase());
 
@@ -37,13 +39,13 @@ public class SeguroService {
 
     public void deletarSeguro(UUID id) {
         Seguro seguro = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Seguro nÆo encontrado"));
         seguroRepository.delete(seguro);
     }
 
     public SeguroDTO buscarPorId(UUID id) {
         Seguro seguro = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Seguro nÆo encontrado"));
         return SeguroDTO.fromEntity(seguro);
     }
 
@@ -56,15 +58,32 @@ public class SeguroService {
 
     protected void validarSeguro(Seguro seguro) {
         if (seguro.getTitulo() == null || seguro.getTitulo().trim().isEmpty()) {
-            throw new IllegalArgumentException("Título é obrigatório.");
+            throw new IllegalArgumentException("T¡tulo ‚ obrigat¢rio.");
+        }
+
+        if (seguro.getTipo() == null) {
+            throw new IllegalArgumentException("Tipo de seguro ‚ obrigat¢rio.");
+        }
+
+        if (seguro.getCoberturaMinima() == null) {
+            throw new IllegalArgumentException("Cobertura m¡nima ‚ obrigat¢ria.");
+        }
+
+        if (BigDecimal.ZERO.compareTo(seguro.getCoberturaMinima()) >= 0) {
+            throw new IllegalArgumentException("Cobertura m¡nima deve ser positiva.");
         }
 
         if (seguro.getValorPremioBase() == null) {
-            throw new IllegalArgumentException("Valor de Prêmio Base é obrigatório.");
+            throw new IllegalArgumentException("Valor de Prˆmio Base ‚ obrigat¢rio.");
         }
 
         if (BigDecimal.ZERO.compareTo(seguro.getValorPremioBase()) >= 0) {
-            throw new IllegalArgumentException("Valor de Prêmio Base deve ser positivo.");
+            throw new IllegalArgumentException("Valor de Prˆmio Base deve ser positivo.");
+        }
+
+        var existente = seguroRepository.findByTitulo(seguro.getTitulo());
+        if (existente.isPresent() && (seguro.getId() == null || !existente.get().getId().equals(seguro.getId()))) {
+            throw new IllegalArgumentException("Já existe um seguro com este título.");
         }
     }
 }

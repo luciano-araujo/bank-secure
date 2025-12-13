@@ -15,8 +15,8 @@ public interface ApoliceRepository extends JpaRepository<Apolice, UUID> {
     boolean existsByClienteId(UUID clienteId);
     List<Apolice> findByDataVencimentoBetween(LocalDate inicio, LocalDate fim);
 
-    @Query(value = "SELECT s.titulo as tipoSeguro, COUNT(a.id) as quantidadeApolices, SUM(a.premio_final) as valorTotalArrecadado " +
-            "FROM apolices a JOIN seguros s ON a.seguro_id = s.id GROUP BY s.titulo", nativeQuery = true)
+    @Query(value = "SELECT a.tipo_seguro as tipoSeguro, COUNT(a.id) as quantidadeApolices, SUM(a.premio_final) as valorTotalArrecadado " +
+            "FROM apolices a GROUP BY a.tipo_seguro", nativeQuery = true)
     List<DashboardDTO> findDashboardPorTipoSeguro();
 
 

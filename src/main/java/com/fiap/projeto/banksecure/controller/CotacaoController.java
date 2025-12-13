@@ -1,7 +1,9 @@
 package com.fiap.projeto.banksecure.controller;
 
 import com.fiap.projeto.banksecure.dto.CotacaoDTO;
+import com.fiap.projeto.banksecure.dto.CotacaoRequestDTO;
 import com.fiap.projeto.banksecure.service.CotacaoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +19,10 @@ public class CotacaoController {
     private final CotacaoService cotacaoService;
 
     @PostMapping
-    public ResponseEntity<CotacaoDTO> realizarCotacao(
-            @RequestParam UUID clienteId,
-            @RequestParam UUID seguroId) {
-        return ResponseEntity.ok(cotacaoService.realizarCotacao(clienteId, seguroId));
+    public ResponseEntity<CotacaoDTO> realizarCotacao(@Valid @RequestBody CotacaoRequestDTO request) {
+        return ResponseEntity.ok(
+                cotacaoService.realizarCotacao(request.clienteId(), request.seguroId(), request.coberturaTotal())
+        );
     }
 
     @GetMapping("/{id}")

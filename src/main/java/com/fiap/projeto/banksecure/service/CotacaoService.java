@@ -4,6 +4,7 @@ import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.domain.Cotacao;
 import com.fiap.projeto.banksecure.domain.Seguro;
 import com.fiap.projeto.banksecure.dto.CotacaoDTO;
+import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
 import com.fiap.projeto.banksecure.repository.CotacaoRepository;
 import com.fiap.projeto.banksecure.repository.SeguroRepository;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -30,19 +32,24 @@ public class CotacaoService {
     private static final int IDADE_BONUS = 60;
 
 
-    public CotacaoDTO realizarCotacao(UUID clienteId, UUID seguroId) {
+    public CotacaoDTO realizarCotacao(UUID clienteId, UUID seguroId, BigDecimal coberturaTotal) {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
         Seguro seguro = seguroRepository.findById(seguroId)
                 .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
 
-        BigDecimal premioFinal = calcularPremioFinal(seguro.getValorPremioBase(), cliente);
+        BigDecimal coberturaConsiderada = coberturaTotal != null
+                ? coberturaTotal.max(seguro.getCoberturaMinima())
+                : seguro.getCoberturaMinima();
+
+        BigDecimal premioBase = calcularPremioBase(seguro, coberturaConsiderada);
+        BigDecimal premioFinal = calcularPremioFinal(premioBase, cliente);
 
         Cotacao cotacao = new Cotacao();
         cotacao.setCliente(cliente);
         cotacao.setSeguro(seguro);
-        cotacao.setPremioBase(seguro.getValorPremioBase());
+        cotacao.setPremioBase(premioBase);
         cotacao.setPremioFinal(premioFinal);
         cotacao.setDataCalculo(LocalDate.now());
 
@@ -50,17 +57,22 @@ public class CotacaoService {
         return CotacaoDTO.fromEntity(salva);
     }
 
+    private BigDecimal calcularPremioBase(Seguro seguro, BigDecimal coberturaConsiderada) {
+        TipoSeguroEnum tipo = seguro.getTipo();
+        BigDecimal taxaTipo = BigDecimal.valueOf(tipo.getTaxa());
+        BigDecimal valorBaseTipo = coberturaConsiderada.multiply(taxaTipo);
+        return valorBaseTipo.add(seguro.getValorPremioBase()).setScale(2, RoundingMode.HALF_UP);
+    }
 
     private BigDecimal calcularPremioFinal(BigDecimal premioBase, Cliente cliente) {
-        BigDecimal premio = premioBase;
-        premio = premio.add(premioBase.multiply(TAXA_PADRAO));
+        BigDecimal premio = premioBase.add(premioBase.multiply(TAXA_PADRAO));
 
         if (calcularIdade(cliente.getDataNascimento()) > IDADE_BONUS) {
             premio = premio.add(BONUS_IDADE);
         }
         premio = premio.multiply(FATOR_RISCO);
 
-        return premio;
+        return premio.setScale(2, RoundingMode.HALF_UP);
     }
 
     private int calcularIdade(LocalDate dataNascimento) {

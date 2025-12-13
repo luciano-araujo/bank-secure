@@ -15,6 +15,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from '@mui/material';
 import CalculateRoundedIcon from '@mui/icons-material/CalculateRounded';
@@ -30,6 +31,7 @@ import { getErrorMessage } from '../utils/errorMessage';
 type CotacaoFormState = {
   clienteId: string;
   seguroId: string;
+  coberturaTotal: string;
 };
 
 const CotacoesPage = () => {
@@ -41,14 +43,16 @@ const CotacoesPage = () => {
     queryFn: fetchCotacoes,
   });
 
-  const [formValues, setFormValues] = useState<CotacaoFormState>({ clienteId: '', seguroId: '' });
+  const [formValues, setFormValues] = useState<CotacaoFormState>({ clienteId: '', seguroId: '', coberturaTotal: '' });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const generateMutation = useMutation({
     mutationFn: async (payload: CotacaoFormState) =>
       (
-        await api.post<Cotacao>('/cotacao', null, {
-          params: payload,
+        await api.post<Cotacao>('/cotacao', {
+          clienteId: payload.clienteId,
+          seguroId: payload.seguroId,
+          coberturaTotal: Number(payload.coberturaTotal),
         })
       ).data,
     onSuccess: () => {
@@ -67,7 +71,7 @@ const CotacoesPage = () => {
     <Stack spacing={3}>
       <SectionHeader
         title="Cotações inteligentes"
-        subtitle="Selecione um cliente e um produto de seguro para calcular automaticamente prêmios e vigência."
+        subtitle="Selecione um cliente, um seguro e informe o valor total dos bens para estimar o prêmio final."
       />
 
       {errorMessage && (
@@ -111,6 +115,14 @@ const CotacoesPage = () => {
                 ))}
               </Select>
             </FormControl>
+            <TextField
+              label="Valor total dos bens"
+              type="number"
+              value={formValues.coberturaTotal}
+              onChange={(event) => setFormValues((prev) => ({ ...prev, coberturaTotal: event.target.value }))}
+              required
+              fullWidth
+            />
             <Button
               type="submit"
               variant="contained"
@@ -174,4 +186,3 @@ const CotacoesPage = () => {
 };
 
 export default CotacoesPage;
-

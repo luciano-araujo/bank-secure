@@ -1,5 +1,6 @@
 package com.fiap.projeto.banksecure.domain;
 
+import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,10 @@ public class Apolice {
     @ManyToOne
     @JoinColumn(name = "seguro_id", nullable = false)
     private Seguro seguro;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_seguro", nullable = false, length = 20)
+    private TipoSeguroEnum tipoSeguro;
 
     @Column(name = "premio_final", nullable = false)
     private BigDecimal premioFinal;
