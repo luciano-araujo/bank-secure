@@ -25,7 +25,7 @@ public class SeguroService {
 
     public SeguroDTO atualizarSeguro(UUID id, SeguroDTO seguroDTO) {
         Seguro seguroExistente = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro nÆo encontrado com o ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Seguro não encontrado com o ID: " + id));
 
         seguroExistente.setTitulo(seguroDTO.titulo());
         seguroExistente.setTipo(seguroDTO.tipo());
@@ -39,13 +39,13 @@ public class SeguroService {
 
     public void deletarSeguro(UUID id) {
         Seguro seguro = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro nÆo encontrado"));
+                .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
         seguroRepository.delete(seguro);
     }
 
     public SeguroDTO buscarPorId(UUID id) {
         Seguro seguro = seguroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Seguro nÆo encontrado"));
+                .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
         return SeguroDTO.fromEntity(seguro);
     }
 
@@ -58,27 +58,27 @@ public class SeguroService {
 
     protected void validarSeguro(Seguro seguro) {
         if (seguro.getTitulo() == null || seguro.getTitulo().trim().isEmpty()) {
-            throw new IllegalArgumentException("T¡tulo ‚ obrigat¢rio.");
+            throw new IllegalArgumentException("Titulo é obrigatório.");
         }
 
         if (seguro.getTipo() == null) {
-            throw new IllegalArgumentException("Tipo de seguro ‚ obrigat¢rio.");
+            throw new IllegalArgumentException("Tipo de seguro é obrigatório.");
         }
 
         if (seguro.getCoberturaMinima() == null) {
-            throw new IllegalArgumentException("Cobertura m¡nima ‚ obrigat¢ria.");
+            throw new IllegalArgumentException("Cobertura minima é obrigatória.");
         }
 
         if (BigDecimal.ZERO.compareTo(seguro.getCoberturaMinima()) >= 0) {
-            throw new IllegalArgumentException("Cobertura m¡nima deve ser positiva.");
+            throw new IllegalArgumentException("Cobertura minima deve ser positiva.");
         }
 
         if (seguro.getValorPremioBase() == null) {
-            throw new IllegalArgumentException("Valor de Prˆmio Base ‚ obrigat¢rio.");
+            throw new IllegalArgumentException("Valor de Premio Base é obrigatório.");
         }
 
         if (BigDecimal.ZERO.compareTo(seguro.getValorPremioBase()) >= 0) {
-            throw new IllegalArgumentException("Valor de Prˆmio Base deve ser positivo.");
+            throw new IllegalArgumentException("Valor de Premio Base deve ser positivo.");
         }
 
         var existente = seguroRepository.findByTitulo(seguro.getTitulo());
