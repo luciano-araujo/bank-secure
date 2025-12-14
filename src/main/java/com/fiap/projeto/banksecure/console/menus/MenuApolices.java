@@ -1,13 +1,23 @@
 package com.fiap.projeto.banksecure.console.menus;
 
+import com.fiap.projeto.banksecure.dto.ApoliceDTO;
+import com.fiap.projeto.banksecure.service.ApoliceService;
+import com.fiap.projeto.banksecure.service.ClienteService;
+import com.fiap.projeto.banksecure.service.SeguroService;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 @Component
 public class MenuApolices {
-    // Opção 6 - Futuramente ApoliciesController
-    public void start(Scanner scanner) {
+
+    public void start(Scanner scanner, ApoliceService apoliceService, ClienteService clienteService, SeguroService seguroService) {
         String option;
 
         do {
@@ -16,9 +26,8 @@ public class MenuApolices {
             menu += "    Gerenciar Apólices\n";
             menu += "=============================\n\n";
             menu += "1. Listar Apólices\n";
-            menu += "2. Criar Apólice\n";
-            menu += "3. Editar Apólice\n";
-            menu += "4. Excluir Apólice\n";
+            menu += "2. Apólices a Vencer\n";
+            menu += "3. Renovar Apólice\n";
             menu += "0. Voltar\n\n";
             menu += "Digite a opção desejada: ";
 
@@ -28,16 +37,13 @@ public class MenuApolices {
 
             switch (option) {
                 case "1":
-                    System.out.println("Listando apólices... (Not Implemented)\n");
+                    listarApolices(apoliceService);
                     break;
                 case "2":
-                    System.out.println("Criando apólice... (Not Implemented)\n");
+                    listarApolicesAVencer(apoliceService);
                     break;
                 case "3":
-                    System.out.println("Editando apólice... (Not Implemented)\n");
-                    break;
-                case "4":
-                    System.out.println("Excluindo apólice... (Not Implemented)\n");
+                    renovarApolice(scanner, apoliceService);
                     break;
                 case "0":
                     System.out.println("Voltando...\n");
@@ -48,4 +54,60 @@ public class MenuApolices {
 
         } while (!option.equals("0"));
     }
+
+    private void listarApolices(ApoliceService apoliceService) {
+        List<ApoliceDTO> apoliceList = apoliceService.listarTodasApolices();
+
+        if (apoliceList.isEmpty()) {
+            System.out.println("Nenhuma apólice cadastrada.");
+            return;
+        }
+
+        apoliceList.forEach(a -> {
+            System.out.println("ID: " + a.id());
+            System.out.println("Cliente ID: " + a.clienteId());
+            System.out.println("Seguro ID: " + a.seguroId());
+            System.out.println("Prêmio Final: " + a.totalCobertura());
+            System.out.println("Data Inicial: " + a.dataInicial());
+            System.out.println("Data Vencimento: " + a.dataVencimento());
+            System.out.println("---------------------------");
+        });
+    }
+
+    private void listarApolicesAVencer(ApoliceService apoliceService) {
+        List<ApoliceDTO> apoliceList = apoliceService.listarApolicesAVencer();
+
+        if (apoliceList.isEmpty()) {
+            System.out.println("Nenhuma apólice a vencer nos próximos 30 dias.");
+            return;
+        }
+
+        System.out.println("Apólices a vencer nos próximos 30 dias:\n");
+        apoliceList.forEach(a -> {
+            System.out.println("ID: " + a.id());
+            System.out.println("Cliente ID: " + a.clienteId());
+            System.out.println("Seguro ID: " + a.seguroId());
+            System.out.println("Data Vencimento: " + a.dataVencimento());
+            System.out.println("---------------------------");
+        });
+    }
+
+    private void renovarApolice(Scanner scanner, ApoliceService apoliceService) {
+        try {
+            System.out.print("ID da apólice a renovar: ");
+            String idStr = scanner.nextLine();
+            UUID id = UUID.fromString(idStr);
+
+            ApoliceDTO apoliceRenovada = apoliceService.renovarApolice(id);
+
+            System.out.println("Apólice renovada com sucesso!");
+            System.out.println("Nova data de vencimento: " + apoliceRenovada.dataVencimento() + "\n");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro ao renovar apólice: ID inválido\n");
+        } catch (Exception e) {
+            System.out.println("Erro ao renovar apólice: " + e.getMessage() + "\n");
+        }
+    }
 }
+

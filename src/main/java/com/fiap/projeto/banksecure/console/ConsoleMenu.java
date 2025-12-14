@@ -92,12 +92,12 @@ public class ConsoleMenu {
                     break;
                 case "5":
                     if (loginValidator(loginStats)) {
-                        menuSeguro.start(scanner);
+                        menuSeguro.start(scanner, seguroService);
                     }
                     break;
                 case "6":
                     if (loginValidator(loginStats)) {
-                        menuApolices.start(scanner);
+                        menuApolices.start(scanner, apoliceService, clienteService, seguroService);
                     }
                     break;
                 case "7":
