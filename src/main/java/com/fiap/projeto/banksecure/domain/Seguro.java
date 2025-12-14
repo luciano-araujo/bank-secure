@@ -26,7 +26,7 @@ public class Seguro {
     private String titulo;
 
     @Column(name = "cobertura_minima", nullable = false)
-    private BigDecimal coberturaMinima;
+    private String coberturaMinima;
 
     @Column(name = "valor_premio_base", nullable = false)
     private BigDecimal valorPremioBase;

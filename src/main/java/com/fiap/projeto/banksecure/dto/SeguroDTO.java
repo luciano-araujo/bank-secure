@@ -8,7 +8,7 @@ import java.util.UUID;
 public record SeguroDTO(
         UUID id,
         String titulo,
-        BigDecimal coberturaMinima,
+        String coberturaMinima,
         BigDecimal valorPremioBase
 ) {
     public Seguro toEntity() {

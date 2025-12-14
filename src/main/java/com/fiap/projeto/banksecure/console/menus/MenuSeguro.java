@@ -77,8 +77,7 @@ public class MenuSeguro {
             String titulo = scanner.nextLine();
 
             System.out.print("Cobertura mínima: ");
-            String coberturaStr = scanner.nextLine().replace(",", ".");
-            BigDecimal coberturaMinima = new BigDecimal(coberturaStr);
+            String coberturaMinima = scanner.nextLine();
 
             System.out.print("Valor do prêmio base: ");
             String valorStr = scanner.nextLine().replace(",", ".");
@@ -111,8 +110,7 @@ public class MenuSeguro {
             String titulo = scanner.nextLine();
 
             System.out.print("Nova cobertura mínima: ");
-            String coberturaStr = scanner.nextLine().replace(",", ".");
-            BigDecimal coberturaMinima = new BigDecimal(coberturaStr);
+            String coberturaMinima = scanner.nextLine();
 
             System.out.print("Novo valor do prêmio base: ");
             String valorStr = scanner.nextLine().replace(",", ".");
@@ -127,7 +125,7 @@ public class MenuSeguro {
             System.out.println("Erro ao editar seguro: Formato de número inválido\n");
         } catch (IllegalArgumentException e) {
             System.out.println("Erro ao editar seguro: ID inválido\n");
-        }  catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Erro ao editar seguro: " + e.getMessage() + "\n");
         }
     }
@@ -149,4 +147,3 @@ public class MenuSeguro {
         }
     }
 }
-
