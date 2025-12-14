@@ -53,12 +53,13 @@ public class SeguroService {
                 .toList();
     }
 
-
     protected void validarSeguro(Seguro seguro) {
         if (seguro.getTitulo() == null || seguro.getTitulo().trim().isEmpty()) {
             throw new IllegalArgumentException("Título é obrigatório.");
         }
-
+        if (seguro.getCoberturaMinima() == null || seguro.getCoberturaMinima().trim().isEmpty()) {
+            throw new IllegalArgumentException("Cobertura Mínima é obrigatória.");
+        }
         if (seguro.getValorPremioBase() == null) {
             throw new IllegalArgumentException("Valor de Prêmio Base é obrigatório.");
         }
