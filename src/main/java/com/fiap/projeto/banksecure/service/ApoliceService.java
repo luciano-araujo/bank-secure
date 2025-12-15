@@ -77,7 +77,6 @@ public class ApoliceService {
 
     public List<ApoliceDTO> listarApolicesAVencer() {
         LocalDate hoje = LocalDate.now();
-        // considera como a vencer as apolices que expiram nos proximos 30 dias
         LocalDate limite = hoje.plusDays(30);
 
         return apoliceRepository.findByDataVencimentoBetween(hoje, limite)
