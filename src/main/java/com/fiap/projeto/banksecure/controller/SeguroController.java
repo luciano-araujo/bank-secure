@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,12 +27,12 @@ public class SeguroController {
     }
 
     @PostMapping
-    public ResponseEntity<SeguroDTO> createSeguro(@Valid @RequestBody SeguroDTO seguroDTO) {
+    public ResponseEntity<SeguroDTO> createSeguro(@RequestBody SeguroDTO seguroDTO) {
         return ResponseEntity.ok(seguroService.cadastrarSeguro(seguroDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SeguroDTO> updateSeguro(@PathVariable UUID id, @Valid @RequestBody SeguroDTO seguroDTO) {
+    public ResponseEntity<SeguroDTO> updateSeguro(@PathVariable UUID id, @RequestBody SeguroDTO seguroDTO) {
         return ResponseEntity.ok(seguroService.atualizarSeguro(id, seguroDTO));
     }
 

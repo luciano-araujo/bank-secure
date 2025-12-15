@@ -7,14 +7,8 @@ import java.util.UUID;
 
 public record SeguroDTO(
         UUID id,
-        @jakarta.validation.constraints.NotBlank(message = "T\u00edtulo \u00e9 obrigat\u00f3rio")
         String titulo,
-
-        @jakarta.validation.constraints.NotBlank(message = "Cobertura m\u00ednima \u00e9 obrigat\u00f3ria")
         String coberturaMinima,
-
-        @jakarta.validation.constraints.NotNull(message = "Valor do pr\u00eamio base \u00e9 obrigat\u00f3rio")
-        @jakarta.validation.constraints.DecimalMin(value = "0.01", inclusive = true, message = "Valor do pr\u00eamio base deve ser positivo")
         BigDecimal valorPremioBase
 ) {
     public Seguro toEntity() {
