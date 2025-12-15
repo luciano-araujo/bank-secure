@@ -17,10 +17,8 @@ public class CotacaoController {
     private final CotacaoService cotacaoService;
 
     @PostMapping
-    public ResponseEntity<CotacaoDTO> realizarCotacao(
-            @RequestParam UUID clienteId,
-            @RequestParam UUID seguroId) {
-        return ResponseEntity.ok(cotacaoService.realizarCotacao(clienteId, seguroId));
+    public ResponseEntity<CotacaoDTO> realizarCotacao(@RequestBody CotacaoDTO request) {
+        return ResponseEntity.ok(cotacaoService.calcularCotacao(request.clienteId(), request.seguroId()));
     }
 
     @GetMapping("/{id}")

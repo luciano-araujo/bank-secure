@@ -29,8 +29,7 @@ public class CotacaoService {
     private static final BigDecimal FATOR_RISCO = new BigDecimal("1.10");
     private static final int IDADE_BONUS = 60;
 
-
-    public CotacaoDTO realizarCotacao(UUID clienteId, UUID seguroId) {
+    public CotacaoDTO calcularCotacao(UUID clienteId, UUID seguroId) {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
@@ -46,10 +45,26 @@ public class CotacaoService {
         cotacao.setPremioFinal(premioFinal);
         cotacao.setDataCalculo(LocalDate.now());
 
+        return CotacaoDTO.fromEntity(cotacao);
+    }
+
+    public CotacaoDTO persistirCotacao(UUID clienteId, UUID seguroId, BigDecimal premioFinal) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+
+        Seguro seguro = seguroRepository.findById(seguroId)
+                .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
+
+        Cotacao cotacao = new Cotacao();
+        cotacao.setCliente(cliente);
+        cotacao.setSeguro(seguro);
+        cotacao.setPremioBase(seguro.getValorPremioBase());
+        cotacao.setPremioFinal(premioFinal);
+        cotacao.setDataCalculo(LocalDate.now());
+
         Cotacao salva = cotacaoRepository.save(cotacao);
         return CotacaoDTO.fromEntity(salva);
     }
-
 
     private BigDecimal calcularPremioFinal(BigDecimal premioBase, Cliente cliente) {
         BigDecimal premio = premioBase;

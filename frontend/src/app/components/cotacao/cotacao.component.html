@@ -1,0 +1,117 @@
+<div class="container" id="cotacao-container">
+    <div class="form-card" id="cotacao-form-card">
+        <h1 id="cotacao-title">Realizar Cotação</h1>
+
+        @if (errorMessage) {
+        <div class="error-message" id="error-message">{{ errorMessage }}</div>
+        }
+
+        <form (ngSubmit)="realizarCotacao()" #cotacaoForm="ngForm" id="cotacao-form">
+            <div class="form-group" id="cliente-group">
+                <label for="cliente-select">Cliente</label>
+                <select id="cliente-select" name="clienteId" [(ngModel)]="cotacaoRequest.clienteId" required>
+                    <option value="0">Selecione um cliente</option>
+                    @for (cliente of clientes; track cliente.id) {
+                    <option [value]="cliente.id" [id]="'cliente-option-' + cliente.id">
+                        {{ cliente.nome }} - {{ cliente.cpf }}
+                    </option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group" id="seguro-group">
+                <label for="seguro-select">Seguro</label>
+                <select id="seguro-select" name="seguroId" [(ngModel)]="cotacaoRequest.seguroId" required>
+                    <option value="0">Selecione um seguro</option>
+                    @for (seguro of seguros; track seguro.id) {
+                    <option [value]="seguro.id" [id]="'seguro-option-' + seguro.id">
+                        {{ seguro.titulo }}
+                    </option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-actions" id="form-actions">
+                <button type="submit" id="cotar-btn" class="btn btn-primary" [disabled]="loading || !cotacaoForm.valid">
+                    {{ loading ? 'Calculando...' : 'Calcular Cotação' }}
+                </button>
+                <button type="button" id="voltar-btn" class="btn btn-secondary" (click)="voltar()">
+                    Voltar
+                </button>
+            </div>
+        </form>
+
+        @if (resultado) {
+        <div class="resultado-card" id="resultado-card">
+            <h2 id="resultado-title">Resultado da Cotação</h2>
+            <div class="resultado-info">
+                <div class="info-row">
+                    <label>Prêmio Base:</label>
+                    <span id="premio-base">{{ resultado.premioBase | currency:'BRL' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Prêmio Final:</label>
+                    <span id="premio-final" class="destaque">{{ resultado.premioFinal | currency:'BRL' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Data do Cálculo:</label>
+                    <span id="data-calculo">{{ resultado.dataCalculo | date:'dd/MM/yyyy' }}</span>
+                </div>
+            </div>
+
+            <button type="button" id="registrar-venda-btn" class="btn btn-success" (click)="mostrarFormularioVenda()">
+                📄 Registrar Venda
+            </button>
+        </div>
+        }
+
+        @if (mostrandoFormularioVenda && resultado) {
+        <div class="venda-card" id="venda-card">
+            <h2 id="venda-title">Registrar Apólice</h2>
+
+            @if (vendaErrorMessage) {
+            <div class="error-message" id="venda-error">{{ vendaErrorMessage }}</div>
+            }
+
+            <form (ngSubmit)="confirmarVenda()" #vendaForm="ngForm" id="venda-form">
+                <div class="form-group" id="venda-cliente-group">
+                    <label>Cliente</label>
+                    <input type="text" readonly [value]="getClienteNome()" class="readonly-input" />
+                </div>
+
+                <div class="form-group" id="venda-seguro-group">
+                    <label>Seguro</label>
+                    <input type="text" readonly [value]="getSeguroTitulo()" class="readonly-input" />
+                </div>
+
+                <div class="form-group" id="venda-premio-group">
+                    <label>Prêmio Final</label>
+                    <input type="text" readonly [value]="resultado.premioFinal | currency:'BRL'"
+                        class="readonly-input" />
+                </div>
+
+                <div class="form-group" id="venda-cobertura-group">
+                    <label>Valor Total da Cobertura</label>
+                    <input type="text" readonly [value]="apolice.totalCobertura | currency:'BRL'"
+                        class="readonly-input" />
+                </div>
+
+                <div class="form-group" id="venda-datas-group">
+                    <label>Período de Vigência</label>
+                    <input type="text" readonly [value]="getVigenciaTexto()" class="readonly-input" />
+                </div>
+
+                <div class="form-actions" id="venda-actions">
+                    <button type="submit" id="confirmar-venda-btn" class="btn btn-primary"
+                        [disabled]="vendaLoading || !vendaForm.valid">
+                        {{ vendaLoading ? 'Registrando...' : '✅ Confirmar Registro' }}
+                    </button>
+                    <button type="button" id="cancelar-venda-btn" class="btn btn-secondary" (click)="cancelarCotacao()">
+                        Cancelar Cotação
+                    </button>
+                </div>
+            </form>
+        </div>
+        }
+    </div>
+</div>

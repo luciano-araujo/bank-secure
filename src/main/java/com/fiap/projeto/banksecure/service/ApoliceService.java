@@ -62,15 +62,14 @@ public class ApoliceService {
         Apolice apolice = dto.toEntity();
         apolice.setCliente(cliente);
         apolice.setSeguro(seguro);
+        apolice.setPremioFinal(dto.premioFinal());
 
-        CotacaoDTO cotacao = cotacaoService.realizarCotacao(dto.clienteId(), dto.seguroId());
-        apolice.setPremioFinal(cotacao.premioFinal());
+        cotacaoService.persistirCotacao(dto.clienteId(), dto.seguroId(), dto.premioFinal());
 
         validarCadastro(apolice);
         Apolice salva = apoliceRepository.save(apolice);
         return ApoliceDTO.fromEntity(salva);
     }
-
 
     public List<ApoliceDTO> listarApolicesAVencer() {
         LocalDate hoje = LocalDate.now();
@@ -93,18 +92,21 @@ public class ApoliceService {
         novaApolice.setDataInicial(LocalDate.now());
         novaApolice.setDataVencimento(LocalDate.now().plusYears(1));
 
-        CotacaoDTO cotacao = cotacaoService.realizarCotacao(
+        CotacaoDTO cotacao = cotacaoService.calcularCotacao(
                 novaApolice.getCliente().getId(),
-                novaApolice.getSeguro().getId()
-        );
+                novaApolice.getSeguro().getId());
         novaApolice.setPremioFinal(cotacao.premioFinal());
+
+        cotacaoService.persistirCotacao(
+                novaApolice.getCliente().getId(),
+                novaApolice.getSeguro().getId(),
+                cotacao.premioFinal());
 
         validarCadastro(novaApolice);
         Apolice apoliceRenovada = apoliceRepository.save(novaApolice);
 
         return ApoliceDTO.fromEntity(apoliceRenovada);
     }
-
 
     public List<DashboardDTO> getDashboard() {
         return apoliceRepository.findDashboardPorTipoSeguro();

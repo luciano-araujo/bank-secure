@@ -12,33 +12,28 @@ import java.util.UUID;
 public record ApoliceDTO(
         UUID id,
 
-        @NotNull(message = "Obrigatório informar o ID do cliente")
-        UUID clienteId,
+        @NotNull(message = "Obrigatório informar o ID do cliente") UUID clienteId,
 
-        @NotNull(message = "Obrigatório informar o valor total da cobertura")
-        BigDecimal totalCobertura,
+        @NotNull(message = "Obrigatório informar o valor total da cobertura") BigDecimal totalCobertura,
 
-        @NotNull(message = "Obrigatório informar a data de início da apólice")
-        LocalDate dataInicial,
+        BigDecimal premioFinal,
 
-        @NotNull(message = "Obrigatório informar a data de vencimento da apólice")
-        LocalDate dataVencimento,
+        @NotNull(message = "Obrigatório informar a data de início da apólice") LocalDate dataInicial,
 
-        @NotNull(message = "Obrigatório informar o ID do cliente")
-        UUID seguroId
-) {
+        @NotNull(message = "Obrigatório informar a data de vencimento da apólice") LocalDate dataVencimento,
+
+        @NotNull(message = "Obrigatório informar o ID do cliente") UUID seguroId) {
 
     public static ApoliceDTO fromEntity(Apolice apolice) {
-
 
         return new ApoliceDTO(
                 apolice.getId(),
                 apolice.getCliente().getId(),
                 apolice.getTotalCobertura(),
+                apolice.getPremioFinal(),
                 apolice.getDataInicial(),
                 apolice.getDataVencimento(),
-                apolice.getSeguro().getId()
-        );
+                apolice.getSeguro().getId());
     }
 
     public Apolice toEntity() {
