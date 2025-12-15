@@ -232,7 +232,7 @@ public class ConsoleMenu {
 
         System.out.println("Dashboard por tipo de seguro:");
         dashboard.forEach(d -> System.out.printf("Tipo: %s | Qtde apolices: %d | Valor total arrecadado: %s%n",
-                d.tipoSeguro(), d.quantidadeApolices(), d.valorTotalArrecadado()));
+                d.getTipoSeguro(), d.getQuantidadeApolices(), d.getValorTotalArrecadado()));
         System.out.println();
     }
 }
