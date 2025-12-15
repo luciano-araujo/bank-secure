@@ -1,0 +1,57 @@
+<div class="container" id="apolice-form-container">
+    <div class="form-card" id="apolice-form-card">
+        <h1 id="form-title">Nova Apólice</h1>
+
+        @if (errorMessage) {
+        <div class="error-message" id="error-message">{{ errorMessage }}</div>
+        }
+
+        <form (ngSubmit)="onSubmit()" #apoliceForm="ngForm" id="apolice-form">
+            <div class="form-group" id="cliente-group">
+                <label for="cliente-select">Cliente</label>
+                <select id="cliente-select" name="clienteId" [(ngModel)]="apolice.clienteId" required>
+                    <option value="0">Selecione um cliente</option>
+                    @for (cliente of clientes; track cliente.id) {
+                    <option [value]="cliente.id" [id]="'cliente-option-' + cliente.id">{{ cliente.nome }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group" id="seguro-group">
+                <label for="seguro-select">Seguro</label>
+                <select id="seguro-select" name="seguroId" [(ngModel)]="apolice.seguroId" required>
+                    <option value="0">Selecione um seguro</option>
+                    @for (seguro of seguros; track seguro.id) {
+                    <option [value]="seguro.id" [id]="'seguro-option-' + seguro.id">{{ seguro.titulo }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group" id="cobertura-group">
+                <label for="cobertura-input">Cobertura Total (R$)</label>
+                <input type="number" id="cobertura-input" name="totalCobertura" [(ngModel)]="apolice.totalCobertura"
+                    required min="0" step="0.01" />
+            </div>
+
+            <div class="form-group" id="dataInicial-group">
+                <label for="dataInicial-input">Data Inicial</label>
+                <input type="date" id="dataInicial-input" name="dataInicial" [(ngModel)]="apolice.dataInicial"
+                    required />
+            </div>
+
+            <div class="form-group" id="dataVencimento-group">
+                <label for="dataVencimento-input">Data de Vencimento</label>
+                <input type="date" id="dataVencimento-input" name="dataVencimento" [(ngModel)]="apolice.dataVencimento"
+                    required />
+            </div>
+
+            <div class="form-actions" id="form-actions">
+                <button type="submit" id="salvar-btn" class="btn btn-primary"
+                    [disabled]="loading || !apoliceForm.valid">
+                    {{ loading ? 'Salvando...' : 'Salvar' }}
+                </button>
+                <button type="button" id="cancelar-btn" class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>

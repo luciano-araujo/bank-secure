@@ -1,0 +1,48 @@
+<div class="container" id="apolices-lista-container">
+    <header class="page-header" id="apolices-header">
+        <h1 id="page-title">Apólices</h1>
+        <div class="actions" id="header-actions">
+            <button id="nova-apolice-btn" class="btn btn-primary" (click)="novaApolice()">+ Nova Apólice</button>
+            <button id="voltar-btn" class="btn btn-secondary" (click)="voltar()">Voltar</button>
+        </div>
+    </header>
+
+    @if (loading) {
+    <div class="loading" id="loading-apolices">Carregando...</div>
+    }
+
+    @if (errorMessage) {
+    <div class="error-message" id="error-message">{{ errorMessage }}</div>
+    }
+
+    @if (!loading && apolices.length === 0) {
+    <div class="empty-state" id="empty-state">Nenhuma apólice cadastrada</div>
+    }
+
+    <div class="table-container" id="apolices-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente ID</th>
+                    <th>Seguro ID</th>
+                    <th>Cobertura Total</th>
+                    <th>Data Inicial</th>
+                    <th>Data Vencimento</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (apolice of apolices; track apolice.id) {
+                <tr [id]="'apolice-row-' + apolice.id">
+                    <td [id]="'apolice-id-' + apolice.id">{{ apolice.id }}</td>
+                    <td [id]="'apolice-cliente-' + apolice.id">{{ apolice.clienteId }}</td>
+                    <td [id]="'apolice-seguro-' + apolice.id">{{ apolice.seguroId }}</td>
+                    <td [id]="'apolice-cobertura-' + apolice.id">{{ apolice.totalCobertura | currency:'BRL' }}</td>
+                    <td [id]="'apolice-data-inicial-' + apolice.id">{{ apolice.dataInicial | date:'dd/MM/yyyy' }}</td>
+                    <td [id]="'apolice-data-venc-' + apolice.id">{{ apolice.dataVencimento | date:'dd/MM/yyyy' }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

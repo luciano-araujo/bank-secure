@@ -1,11 +1,9 @@
 package com.fiap.projeto.banksecure.dto;
 
 import com.fiap.projeto.banksecure.domain.Funcionario;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record FuncionarioDTO(
@@ -15,7 +13,7 @@ public record FuncionarioDTO(
         String nome,
 
         @NotBlank(message = "CPF é obrigatório")
-        @Size(min = 11, max = 11, message = "CPF deve ter exatamente 11 caracteres")
+        @Pattern(regexp = "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$", message = "CPF deve estar no formato XXX.XXX.XXX-XX")
         String cpf,
 
         @NotBlank(message = "E-mail é obrigatório")
@@ -28,7 +26,11 @@ public record FuncionarioDTO(
 
         @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Telefone deve seguir E.164, ex: +5511987654321")
         @NotBlank(message = "Telefone é obrigatório")
-        String telefone
+        String telefone,
+
+        @NotNull(message = "Data de nascimento é obrigatória")
+        @Past(message = "Data de nascimento deve estar no passado")
+        LocalDate dataNascimento
 ) {
 
     public static FuncionarioDTO fromEntity(Funcionario funcionario){
@@ -37,8 +39,9 @@ public record FuncionarioDTO(
                 funcionario.getNome(),
                 funcionario.getCpf(),
                 funcionario.getEmail(),
-                null,
-                funcionario.getTelefone()
+                funcionario.getSenha(),
+                funcionario.getTelefone(),
+                funcionario.getDataNascimento()
        );
     }
 
@@ -50,6 +53,19 @@ public record FuncionarioDTO(
         funcionario.setEmail(this.email());
         funcionario.setSenha(this.senha());
         funcionario.setTelefone(this.telefone());
+        funcionario.setDataNascimento(this.dataNascimento());
         return funcionario;
     }
+
+    public Funcionario toEntitySemSenha() {
+        Funcionario funcionario = new Funcionario();
+        funcionario.setId(this.id());
+        funcionario.setNome(this.nome());
+        funcionario.setCpf(this.cpf());
+        funcionario.setEmail(this.email());
+        funcionario.setTelefone(this.telefone());
+        funcionario.setDataNascimento(this.dataNascimento());
+        return funcionario;
+    }
+
 }

@@ -1,0 +1,74 @@
+<div class="home-container" id="home-container">
+    <header class="header" id="header">
+        <div class="header-content">
+            <h1 id="header-title">Bank Secure</h1>
+            <div class="user-info" id="user-info">
+                @if (isAuthenticated) {
+                <span id="user-name">{{ currentUser?.nome }}</span>
+                <span id="user-type" class="badge">{{ currentUser?.tipo }}</span>
+                <button id="logout-btn" class="btn btn-logout" (click)="logout()">Sair</button>
+                } @else {
+                <button id="login-btn" class="btn btn-login" (click)="navigateTo('/login')">Login</button>
+                }
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" id="main-content">
+        <h2 id="welcome-title">Bem-vindo ao Bank Secure</h2>
+        <p id="welcome-description">Sistema de Gerenciamento de Seguros</p>
+
+        <div class="menu-grid" id="menu-grid">
+            <!-- Sempre visível -->
+            <div class="menu-card" id="seguros-card" (click)="navigateTo('/seguros')">
+                <div class="card-icon">📋</div>
+                <h3>Seguros</h3>
+                <p>Consultar seguros disponíveis</p>
+            </div>
+
+            @if (isFuncionario) {
+            <div class="menu-card" id="criar-seguro-card" (click)="navigateTo('/seguros/novo')">
+                <div class="card-icon">➕</div>
+                <h3>Criar Seguro</h3>
+                <p>Cadastrar novo seguro</p>
+            </div>
+
+            <div class="menu-card" id="clientes-card" (click)="navigateTo('/clientes')">
+                <div class="card-icon">👥</div>
+                <h3>Clientes</h3>
+                <p>Gerenciar clientes</p>
+            </div>
+
+            <div class="menu-card" id="funcionarios-card" (click)="navigateTo('/funcionarios')">
+                <div class="card-icon">👔</div>
+                <h3>Funcionários</h3>
+                <p>Gerenciar funcionários</p>
+            </div>
+
+            <div class="menu-card" id="cotacao-card" (click)="navigateTo('/cotacao')">
+                <div class="card-icon">💰</div>
+                <h3>Cotação</h3>
+                <p>Realizar cotação de seguro</p>
+            </div>
+
+            <div class="menu-card" id="apolices-card" (click)="navigateTo('/apolices')">
+                <div class="card-icon">📄</div>
+                <h3>Apólices</h3>
+                <p>Gerenciar apólices</p>
+            </div>
+
+            <div class="menu-card" id="dashboard-card" (click)="navigateTo('/dashboard')">
+                <div class="card-icon">📊</div>
+                <h3>Dashboard</h3>
+                <p>Visualizar estatísticas</p>
+            </div>
+            }
+        </div>
+
+        @if (!isAuthenticated) {
+        <div class="info-box" id="info-box">
+            <p>👤 Você está navegando como anônimo. Faça login para acessar mais funcionalidades.</p>
+        </div>
+        }
+    </main>
+</div>

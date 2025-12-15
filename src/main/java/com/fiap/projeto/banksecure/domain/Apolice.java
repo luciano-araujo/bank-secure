@@ -1,6 +1,5 @@
 package com.fiap.projeto.banksecure.domain;
 
-import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,25 +10,35 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "apolices") // Define o nome da tabela no banco
+@Table(name = "apolices")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Apolice {
-    @Id // Marca o campo como chave primária da entidade
-    @GeneratedValue(strategy = GenerationType.UUID) // Gera o valor da chave primária automaticamente.
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne // Define um relacionamento muitos-para-um (esta apólice pertence a um cliente)
-    @JoinColumn(name = "cliente_id", nullable = false) // Especifica a coluna de junção no banco (nome da foreign key)
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    private BigDecimal totalCobertura;
-    private LocalDate vencimento;
+    @ManyToOne
+    @JoinColumn(name = "seguro_id", nullable = false)
+    private Seguro seguro;
 
-    @Enumerated(EnumType.STRING) // Mapeia um enum para string no banco (armazenando o nome do enum)
-    private TipoSeguroEnum tipoSeguroEnum;
+    @Column(name = "premio_final", nullable = false)
+    private BigDecimal premioFinal;
+
+    @Column(nullable = false)
+    private LocalDate dataInicial;
+
+    @Column(nullable = false)
+    private LocalDate dataVencimento;
+
+    @Column(nullable = false)
+    private BigDecimal totalCobertura;
 
     @OneToMany(mappedBy = "apolice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bem> listaDeBens = new ArrayList<>();

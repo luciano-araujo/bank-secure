@@ -1,9 +1,8 @@
+/*
 package com.fiap.projeto.banksecure;
 
-import com.fiap.projeto.banksecure.domain.Apolice;
-import com.fiap.projeto.banksecure.domain.Bem;
-import com.fiap.projeto.banksecure.domain.Cliente;
-import com.fiap.projeto.banksecure.domain.Funcionario;
+import com.fiap.projeto.banksecure.domain.*;
+import com.fiap.projeto.banksecure.dto.SeguroDTO;
 import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import com.fiap.projeto.banksecure.service.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +14,7 @@ import java.util.*;
 
 @Component
 public class ConsoleRunner implements CommandLineRunner {
-
-    @Value("${skip.console:false}")
-    private boolean skipConsole;
+    public static boolean skipConsoleRunner = true;
 
     private final ClienteService clienteService;
     private final FuncionarioService funcionarioService;
@@ -43,9 +40,8 @@ public class ConsoleRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-
         // verificacao que permite pular o console durante ciclo clean/install do maven
-        if(skipConsole) {
+        if(skipConsoleRunner) {
             return;
         }
 
@@ -161,10 +157,10 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
     private void listarTiposSeguro() {
-        var tipos = seguroService.listarTiposDisponiveis();
+        List<SeguroDTO> seguros = seguroService.getAllSeguros();
         System.out.println("Tipos de seguro disponíveis:");
-        for (TipoSeguroEnum tipo : tipos) {
-            System.out.println("- " + tipo.name());
+        for (SeguroDTO seguro : seguros) {
+            System.out.println("- " + seguro.tipoSeguroEnum().name());
         }
         System.out.println();
     }
@@ -258,7 +254,7 @@ public class ConsoleRunner implements CommandLineRunner {
                     a.getCliente() != null ? a.getCliente().getNome() : "-",
                     a.getTipoSeguroEnum() != null ? a.getTipoSeguroEnum().name() : "-",
                     a.getTotalCobertura(),
-                    a.getVencimento());
+                    a.getDataVencimento());
         }
         System.out.println();
     }
@@ -287,7 +283,7 @@ public class ConsoleRunner implements CommandLineRunner {
             Apolice renovada = apoliceService.renovarApolice(atual);
             apolices.add(renovada);
             System.out.println("Apólice renovada com sucesso.");
-            System.out.println("Nova data de vencimento: " + renovada.getVencimento());
+            System.out.println("Nova data de vencimento: " + renovada.getDataVencimento());
             System.out.println("Total de cobertura: " + renovada.getTotalCobertura());
             BigDecimal premio = cotacaoService.calcularPremio(renovada.getTotalCobertura(), renovada.getTipoSeguroEnum());
             System.out.println("Novo prêmio estimado: " + premio + "\n");
@@ -313,3 +309,4 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println();
     }
 }
+*/

@@ -3,6 +3,7 @@ package com.fiap.projeto.banksecure.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +25,9 @@ public class Funcionario {
 
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    private LocalDate dataNascimento;
 
     @Column(nullable = false)
     private String senha;
