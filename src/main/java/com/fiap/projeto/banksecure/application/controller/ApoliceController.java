@@ -1,0 +1,52 @@
+package com.fiap.projeto.banksecure.application.controller;
+
+import com.fiap.projeto.banksecure.application.dto.ApoliceDTO;
+import com.fiap.projeto.banksecure.application.dto.DashboardDTO;
+import com.fiap.projeto.banksecure.application.service.ApoliceService;
+import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/apolice")
+@RequiredArgsConstructor
+public class ApoliceController {
+
+    private final ApoliceService apoliceService;
+
+    @PostMapping
+    public ResponseEntity<ApoliceDTO> criarApolice(@Valid @RequestBody ApoliceDTO apoliceDTO) {
+        return ResponseEntity.ok(apoliceService.criarApolice(apoliceDTO));
+    }
+
+    @GetMapping("/vencer")
+    public ResponseEntity<List<ApoliceDTO>> listarApolicesAVencer() {
+        return ResponseEntity.ok(apoliceService.listarApolicesAVencer());
+    }
+
+    @PostMapping("/renovacao/{id}")
+    public ResponseEntity<ApoliceDTO> renovarApolice(@PathVariable UUID id) {
+        return ResponseEntity.ok(apoliceService.renovarApolice(id));
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<List<DashboardDTO>> getDashboard() {
+        return ResponseEntity.ok(apoliceService.getDashboard());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ApoliceDTO>> listarTodas() {
+        return ResponseEntity.ok(apoliceService.listarTodasApolices());
+    }
+
+    @GetMapping("/vencidas")
+    public ResponseEntity<List<ApoliceDTO>> listarApolicesVencidas() {
+        return ResponseEntity.ok(apoliceService.listarApolicesVencidas());
+    }
+
+
+}
