@@ -77,7 +77,7 @@ public class ApoliceService {
 
     public List<ApoliceDTO> listarApolicesAVencer() {
         LocalDate hoje = LocalDate.now();
-        LocalDate limite = hoje.plusDays(30);
+        LocalDate limite = hoje.plusYears(1);
 
         return apoliceRepository.findByDataVencimentoBetween(hoje, limite)
                 .stream()
