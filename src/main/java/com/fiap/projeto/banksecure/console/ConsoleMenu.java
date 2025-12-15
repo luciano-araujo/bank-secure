@@ -20,8 +20,6 @@ import java.util.Scanner;
 @Component
 @RequiredArgsConstructor
 public class ConsoleMenu {
-    private final boolean fazerCadastroInicial = true;
-
     private final ClienteService clienteService;
     private final FuncionarioService funcionarioService;
     private final SeguroService seguroService;
@@ -34,6 +32,7 @@ public class ConsoleMenu {
     private final MenuSeguro menuSeguro;
 
     public void start(){
+        boolean fazerCadastroInicial = true;
         if(fazerCadastroInicial){
             criarUsuariosIniciais();
         }
@@ -55,24 +54,27 @@ public class ConsoleMenu {
                     CadastroOption(scanner);
                     break;
                 case "3":
-                    SecureTypesViewOption();
+                    CotacaoOption(scanner);
                     break;
                 case "4":
+                    SecureTypesViewOption();
+                    break;
+                case "5":
                     if (loginValidator(loginStats)) {
                         menuCliente.start(scanner, clienteService);
                     }
                     break;
-                case "5":
+                case "6":
                     if (loginValidator(loginStats)) {
                         menuSeguro.start(scanner, seguroService);
                     }
                     break;
-                case "6":
+                case "7":
                     if (loginValidator(loginStats)) {
                         menuApolices.start(scanner, apoliceService, clienteService, seguroService, cotacaoService);
                     }
                     break;
-                case "7":
+                case "8":
                     if (loginValidator(loginStats)) {
                         ViewDashboardOption();
                     }
@@ -115,13 +117,14 @@ public class ConsoleMenu {
         menu += "\n";
         menu += loginStats == LoginStats.ANONIMO ? "1. Login\n" : "1. Deslogar\n";
         menu += "2. Cadastro de Funcionario\n";
-        menu += "3. Visualizar seguros disponiveis\n";
+        menu += "3. Calcular Cotacao\n";
+        menu += "4. Visualizar seguros disponiveis\n";
 
         if (loginStats == LoginStats.LOGADO){
-            menu += "4. Gerenciar Clientes\n";
-            menu += "5. Gerenciar Seguros\n";
-            menu += "6. Gerenciar Apolices\n";
-            menu += "7. Visualizar Dashboard\n";
+            menu += "5. Gerenciar Clientes\n";
+            menu += "6. Gerenciar Seguros\n";
+            menu += "7. Gerenciar Apolices\n";
+            menu += "8. Visualizar Dashboard\n";
         }
 
         menu += "0. Sair\n";
@@ -209,6 +212,68 @@ public class ConsoleMenu {
     }
 
     // Opcao 3
+    private void CotacaoOption(Scanner scanner) {
+        var clientes = clienteService.getAllClientes();
+        if (clientes.isEmpty()) {
+            System.out.println("Nenhum cliente cadastrado.\n");
+            return;
+        }
+        var seguros = seguroService.getAllSeguros();
+        if (seguros.isEmpty()) {
+            System.out.println("Nenhum seguro cadastrado.\n");
+            return;
+        }
+
+        System.out.println("Clientes:");
+        for (int i = 0; i < clientes.size(); i++) {
+            var c = clientes.get(i);
+            System.out.printf("%d) %s | CPF: %s%n", i + 1, c.nome(), c.cpf());
+        }
+        System.out.print("Escolha o numero do cliente: ");
+        int idxCliente;
+        try {
+            idxCliente = Integer.parseInt(scanner.nextLine()) - 1;
+            if (idxCliente < 0 || idxCliente >= clientes.size()) {
+                System.out.println("Cliente inexistente.\n");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Entrada invalida.\n");
+            return;
+        }
+        var cliente = clientes.get(idxCliente);
+
+        System.out.println("Seguros:");
+        for (int i = 0; i < seguros.size(); i++) {
+            var s = seguros.get(i);
+            System.out.printf("%d) %s | Cobertura minima: %s | Premio base: %s%n", i + 1, s.titulo(), s.coberturaMinima(), s.valorPremioBase());
+        }
+        System.out.print("Escolha o numero do seguro: ");
+        int idxSeguro;
+        try {
+            idxSeguro = Integer.parseInt(scanner.nextLine()) - 1;
+            if (idxSeguro < 0 || idxSeguro >= seguros.size()) {
+                System.out.println("Seguro inexistente.\n");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Entrada invalida.\n");
+            return;
+        }
+        var seguro = seguros.get(idxSeguro);
+
+        try {
+            var cotacao = cotacaoService.calcularCotacao(cliente.id(), seguro.id());
+            System.out.println("Cotacao realizada:");
+            System.out.printf("Premio base: %s%n", cotacao.premioBase());
+            System.out.printf("Premio final: %s%n", cotacao.premioFinal());
+            System.out.printf("Data do calculo: %s%n%n", cotacao.dataCalculo());
+        } catch (Exception e) {
+            System.out.println("Erro ao calcular cotacao: " + e.getMessage() + "\n");
+        }
+    }
+
+    // Opcao 4
     private void SecureTypesViewOption(){
         var seguros = seguroService.getAllSeguros();
         if (seguros.isEmpty()) {
@@ -222,7 +287,7 @@ public class ConsoleMenu {
         System.out.println();
     }
 
-    // Opcao 7
+    // Opcao 8
     private void ViewDashboardOption() {
         var dashboard = apoliceService.getDashboard();
         if (dashboard == null || dashboard.isEmpty()) {
