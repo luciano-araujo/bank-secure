@@ -18,6 +18,7 @@ public class SeguroService {
 
     public SeguroDTO cadastrarSeguro(SeguroDTO dto) {
         Seguro seguro = dto.toEntity();
+        validarSeguro(seguro);
         Seguro saved = seguroRepository.save(seguro);
         return SeguroDTO.fromEntity(saved);
     }
