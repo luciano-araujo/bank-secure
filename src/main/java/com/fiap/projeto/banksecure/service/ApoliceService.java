@@ -28,43 +28,47 @@ public class ApoliceService {
 
     public void validarCadastro(Apolice apolice) {
         if (apolice == null) {
-            throw new IllegalArgumentException("Apólice é obrigatória.");
+            throw new IllegalArgumentException("Apolice é obrigatoria.");
         }
 
         if (apolice.getCliente() == null) {
-            throw new IllegalArgumentException("A apólice deve estar atrelada a um cliente.");
+            throw new IllegalArgumentException("A apolice deve estar atrelada a um cliente.");
         }
 
         if (apolice.getSeguro() == null) {
-            throw new IllegalArgumentException("A apólice deve estar atrelada a um seguro.");
+            throw new IllegalArgumentException("A apolice deve estar atrelada a um seguro.");
         }
 
         if (apolice.getPremioFinal() == null || apolice.getPremioFinal().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Apólice deve ter valor final positivo.");
+            throw new IllegalArgumentException("Apolice deve ter valor final positivo.");
         }
 
         if (apolice.getDataInicial() == null) {
-            throw new IllegalArgumentException("Apólice deve ter data de início.");
+            throw new IllegalArgumentException("Apolice deve ter data de inicio.");
         }
 
         if (apolice.getDataVencimento() == null) {
-            throw new IllegalArgumentException("Apólice deve ter data de vencimento.");
+            throw new IllegalArgumentException("Apolice deve ter data de vencimento.");
         }
     }
 
     public ApoliceDTO criarApolice(ApoliceDTO dto) {
         Cliente cliente = clienteRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Cliente nao encontrado"));
 
         Seguro seguro = seguroRepository.findById(dto.seguroId())
-                .orElseThrow(() -> new IllegalArgumentException("Seguro não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Seguro nao encontrado"));
+
+        CotacaoDTO cotacaoCalculada = cotacaoService.calcularCotacao(dto.clienteId(), dto.seguroId());
 
         Apolice apolice = dto.toEntity();
         apolice.setCliente(cliente);
         apolice.setSeguro(seguro);
-        apolice.setPremioFinal(dto.premioFinal());
+        apolice.setPremioFinal(cotacaoCalculada.premioFinal());
+        apolice.setDataInicial(LocalDate.now());
+        apolice.setDataVencimento(LocalDate.now().plusYears(1));
 
-        cotacaoService.persistirCotacao(dto.clienteId(), dto.seguroId(), dto.premioFinal());
+        cotacaoService.persistirCotacao(dto.clienteId(), dto.seguroId(), cotacaoCalculada.premioFinal());
 
         validarCadastro(apolice);
         Apolice salva = apoliceRepository.save(apolice);
@@ -83,7 +87,7 @@ public class ApoliceService {
 
     public ApoliceDTO renovarApolice(UUID apoliceId) {
         Apolice apoliceExistente = apoliceRepository.findById(apoliceId)
-                .orElseThrow(() -> new IllegalArgumentException("Apólice não encontrada com o ID: " + apoliceId));
+                .orElseThrow(() -> new IllegalArgumentException("Apolice nao encontrada com o ID: " + apoliceId));
 
         Apolice novaApolice = new Apolice();
         novaApolice.setCliente(apoliceExistente.getCliente());

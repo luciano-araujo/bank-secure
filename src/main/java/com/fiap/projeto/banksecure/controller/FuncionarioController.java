@@ -7,6 +7,7 @@ import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.repository.FuncionarioRepository;
 import com.fiap.projeto.banksecure.service.FuncionarioService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,12 +33,12 @@ public class FuncionarioController {
     }
 
     @PostMapping
-    public ResponseEntity<FuncionarioDTO> createFuncionario(@RequestBody FuncionarioDTO funcionarioDTO) {
+    public ResponseEntity<FuncionarioDTO> createFuncionario(@Valid @RequestBody FuncionarioDTO funcionarioDTO) {
         return ResponseEntity.ok(funcionarioService.cadastrarFuncionario(funcionarioDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FuncionarioDTO> updateFuncionario(@PathVariable UUID id, @RequestBody FuncionarioDTO funcionarioDTO) {
+    public ResponseEntity<FuncionarioDTO> updateFuncionario(@PathVariable UUID id, @Valid @RequestBody FuncionarioDTO funcionarioDTO) {
         return ResponseEntity.ok(funcionarioService.atualizarFuncionario(id, funcionarioDTO));
     }
 

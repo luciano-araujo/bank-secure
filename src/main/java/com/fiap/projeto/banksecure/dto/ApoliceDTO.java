@@ -1,31 +1,37 @@
 package com.fiap.projeto.banksecure.dto;
 
 import com.fiap.projeto.banksecure.domain.Apolice;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 public record ApoliceDTO(
         UUID id,
 
-        @NotNull(message = "Obrigatório informar o ID do cliente") UUID clienteId,
+        @NotNull(message = "Obrigatorio informar o ID do cliente")
+        UUID clienteId,
 
-        @NotNull(message = "Obrigatório informar o valor total da cobertura") BigDecimal totalCobertura,
+        @NotNull(message = "Obrigatorio informar o valor total da cobertura")
+        @DecimalMin(value = "0.01", inclusive = true, message = "Total de cobertura deve ser positivo")
+        BigDecimal totalCobertura,
 
+        @NotNull(message = "Obrigatorio informar o premio final")
+        @DecimalMin(value = "0.01", inclusive = true, message = "Premio final deve ser positivo")
         BigDecimal premioFinal,
 
-        @NotNull(message = "Obrigatório informar a data de início da apólice") LocalDate dataInicial,
+        @NotNull(message = "Obrigatorio informar a data de inicio da apolice")
+        LocalDate dataInicial,
 
-        @NotNull(message = "Obrigatório informar a data de vencimento da apólice") LocalDate dataVencimento,
+        @NotNull(message = "Obrigatorio informar a data de vencimento da apolice")
+        LocalDate dataVencimento,
 
-        @NotNull(message = "Obrigatório informar o ID do cliente") UUID seguroId) {
+        @NotNull(message = "Obrigatorio informar o ID do seguro")
+        UUID seguroId) {
 
     public static ApoliceDTO fromEntity(Apolice apolice) {
-
         return new ApoliceDTO(
                 apolice.getId(),
                 apolice.getCliente().getId(),
@@ -33,7 +39,8 @@ public record ApoliceDTO(
                 apolice.getPremioFinal(),
                 apolice.getDataInicial(),
                 apolice.getDataVencimento(),
-                apolice.getSeguro().getId());
+                apolice.getSeguro().getId()
+        );
     }
 
     public Apolice toEntity() {
@@ -44,5 +51,4 @@ public record ApoliceDTO(
         apolice.setDataVencimento(this.dataVencimento());
         return apolice;
     }
-
 }
