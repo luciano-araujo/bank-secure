@@ -5,6 +5,7 @@ import com.fiap.projeto.banksecure.repository.FuncionarioRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -12,23 +13,22 @@ import java.time.LocalDate;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initDatabase(FuncionarioRepository funcionarioRepository) {
+    CommandLineRunner initDatabase(FuncionarioRepository funcionarioRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            // Verifica se já existe algum funcionário
+            // cria admin padrao se nao existir nenhum funcionario
             if (funcionarioRepository.count() == 0) {
-                // Cria funcionário admin padrão
                 Funcionario admin = new Funcionario();
                 admin.setNome("Administrador");
                 admin.setCpf("11111111111");
                 admin.setEmail("admin@banksecure.com");
                 admin.setDataNascimento(LocalDate.of(1990, 1, 1));
-                admin.setSenha("admin123"); // Senha em texto plano para testes
+                admin.setSenha(passwordEncoder.encode("admin123"));
                 admin.setTelefone("11999999999");
 
                 funcionarioRepository.save(admin);
 
                 System.out.println("========================================");
-                System.out.println("FUNCIONÁRIO PADRÃO CRIADO:");
+                System.out.println("FUNCIONARIO PADRAO CRIADO:");
                 System.out.println("CPF: 11111111111");
                 System.out.println("Senha: admin123");
                 System.out.println("========================================");
