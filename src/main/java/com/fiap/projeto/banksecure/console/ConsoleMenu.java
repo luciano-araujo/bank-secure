@@ -3,30 +3,24 @@ package com.fiap.projeto.banksecure.console;
 import com.fiap.projeto.banksecure.console.menus.MenuApolices;
 import com.fiap.projeto.banksecure.console.menus.MenuCliente;
 import com.fiap.projeto.banksecure.console.menus.MenuSeguro;
-import com.fiap.projeto.banksecure.domain.Apolice;
 import com.fiap.projeto.banksecure.domain.Cliente;
 import com.fiap.projeto.banksecure.domain.Funcionario;
-import com.fiap.projeto.banksecure.domain.Seguro;
-import com.fiap.projeto.banksecure.dto.*;
-import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
+import com.fiap.projeto.banksecure.dto.AuthRequest;
+import com.fiap.projeto.banksecure.dto.AuthResponse;
+import com.fiap.projeto.banksecure.dto.ClienteDTO;
+import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.service.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 @Component
 @RequiredArgsConstructor
 public class ConsoleMenu {
     private final boolean fazerCadastroInicial = true;
-    private final boolean comecarLogado = true;
 
     private final ClienteService clienteService;
     private final FuncionarioService funcionarioService;
@@ -41,54 +35,16 @@ public class ConsoleMenu {
 
     public void start(){
         if(fazerCadastroInicial){
-            Funcionario funcionario = new Funcionario();
-            funcionario.setCpf("123456789");
-            funcionario.setEmail("email@email.com");
-            funcionario.setNome("Funcionario Inicial");
-            funcionario.setSenha("123");
-            funcionario.setTelefone("11999999999");
-            LocalDate dataNascimento = LocalDate.of(1990, 1, 1);
-            funcionario.setDataNascimento(dataNascimento);
-
-            funcionarioService.cadastrarFuncionario(FuncionarioDTO.fromEntity(funcionario));
-
-            Cliente cliente = new Cliente();
-            cliente.setCpf("123");
-            cliente.setEmail("cliente@mail.com");
-            cliente.setNome("Cliente Inicial");
-            cliente.setSenha("123");
-            cliente.setTelefone("11988888888");
-            cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
-
-            clienteService.cadastrarCliente(ClienteDTO.fromEntityFull(cliente));
-
-            Seguro seguro = new Seguro();
-            seguro.setTitulo("Seguro inicial");
-            seguro.setDescricao("Seguro inicial");
-            seguro.setValorPremioBase(new BigDecimal("20000"));
-            seguro.setCoberturaMinima("Teste");
-            seguro.setTipoSeguroEnum(TipoSeguroEnum.VIDA);
-
-            seguroService.cadastrarSeguro(SeguroDTO.fromEntity(seguro));
+            criarUsuariosIniciais();
         }
-
 
         String option;
         Scanner scanner = new Scanner(System.in);
         LoginStats loginStats = LoginStats.ANONIMO;
 
-        if (comecarLogado){
-            System.out.println("Iniciando como usuário logado para facilitar os testes.");
-            loginStats = LoginStats.LOGADO;
-        }
-
         do {
-            String menu = getMenu(loginStats);
-
-            System.out.print(menu);
-
+            System.out.print(getMenu(loginStats));
             option = scanner.nextLine();
-
             System.out.println();
 
             switch (option){
@@ -108,12 +64,12 @@ public class ConsoleMenu {
                     break;
                 case "5":
                     if (loginValidator(loginStats)) {
-                        menuSeguro.start(scanner);
+                        menuSeguro.start(scanner, seguroService);
                     }
                     break;
                 case "6":
                     if (loginValidator(loginStats)) {
-                        menuApolices.start(scanner);
+                        menuApolices.start(scanner, apoliceService, clienteService, seguroService, cotacaoService);
                     }
                     break;
                 case "7":
@@ -125,10 +81,30 @@ public class ConsoleMenu {
                     System.out.println("Saindo...");
                     break;
                 default:
-                    System.out.println("Opção inválida.");
+                    System.out.println("Opcao invalida.");
                     break;
             }
         } while (!option.equals("0"));
+    }
+
+    private void criarUsuariosIniciais() {
+        Funcionario funcionario = new Funcionario();
+        funcionario.setCpf("123456789");
+        funcionario.setEmail("email@email.com");
+        funcionario.setNome("Funcionario Inicial");
+        funcionario.setSenha("123");
+        funcionario.setTelefone("11999999999");
+        funcionario.setDataNascimento(LocalDate.of(1990, 1, 1));
+        funcionarioService.cadastrarFuncionario(FuncionarioDTO.fromEntity(funcionario));
+
+        Cliente cliente = new Cliente();
+        cliente.setCpf("123");
+        cliente.setEmail("cliente@mail.com");
+        cliente.setNome("Cliente Inicial");
+        cliente.setSenha("123");
+        cliente.setTelefone("11988888888");
+        cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
+        clienteService.cadastrarCliente(ClienteDTO.fromEntityFull(cliente));
     }
 
     private static String getMenu(LoginStats loginStats) {
@@ -138,19 +114,19 @@ public class ConsoleMenu {
         menu += "=======================================================\n";
         menu += "\n";
         menu += loginStats == LoginStats.ANONIMO ? "1. Login\n" : "1. Deslogar\n";
-        menu += "2. Cadastro de Funcionário\n";
-        menu += "3. Visualizar seguros disponíveis\n";
+        menu += "2. Cadastro de Funcionario\n";
+        menu += "3. Visualizar seguros disponiveis\n";
 
         if (loginStats == LoginStats.LOGADO){
-            menu += "4. Gerênciar Clientes\n";
-            menu += "5. Gerênciar Seguros\n";
-            menu += "6. Gerênciar Apólices\n";
+            menu += "4. Gerenciar Clientes\n";
+            menu += "5. Gerenciar Seguros\n";
+            menu += "6. Gerenciar Apolices\n";
             menu += "7. Visualizar Dashboard\n";
         }
 
         menu += "0. Sair\n";
         menu += "\n";
-        menu += "Digite o número da opção desejada: ";
+        menu += "Digite o numero da opcao desejada: ";
 
         return menu;
     }
@@ -158,30 +134,27 @@ public class ConsoleMenu {
     @Getter
     private enum LoginStats {
         LOGADO("Logado"),
-        ANONIMO("Anônimo");
+        ANONIMO("Anonimo");
 
         private final String name;
 
         LoginStats(String name){
             this.name = name;
         }
-
     }
 
     private boolean loginValidator(LoginStats loginStats) {
         if (loginStats != LoginStats.LOGADO) {
-            System.out.println("Opção inválida.");
+            System.out.println("Opcao invalida.");
             return false;
         }
-        else  {
-            return true;
-        }
+        return true;
     }
 
-    // Opção 1
+    // Opcao 1
     private LoginStats loginOption(Scanner scanner, LoginStats loginStats){
         if (loginStats == LoginStats.LOGADO){
-            System.out.println("Usuário deslogado.\n");
+            System.out.println("Usuario deslogado.\n");
             return LoginStats.ANONIMO;
         }
 
@@ -196,7 +169,7 @@ public class ConsoleMenu {
         try {
             response = authService.login(authRequest);
         }catch (RuntimeException e){
-            System.out.print("Email ou senha inválidos.");
+            System.out.print("Email ou senha invalidos.");
             return LoginStats.ANONIMO;
         }
 
@@ -207,9 +180,9 @@ public class ConsoleMenu {
         return LoginStats.ANONIMO;
     }
 
-    // Opção 2
+    // Opcao 2
     private void CadastroOption(Scanner scanner){
-        System.out.print("\nCadastro de Funcionário:\n\n");
+        System.out.print("\nCadastro de Funcionario:\n\n");
 
         System.out.print("Digite seu Nome: ");
         String nome = scanner.nextLine();
@@ -229,32 +202,37 @@ public class ConsoleMenu {
         FuncionarioDTO novoCadastro = new FuncionarioDTO(null,nome, cpf, email, senha, telefone, null);
         try {
             funcionarioService.cadastrarFuncionario(novoCadastro);
-
-            System.out.print("Funcionário cadastrado com sucesso.\n");
+            System.out.print("Funcionario cadastrado com sucesso.\n");
         } catch (IllegalArgumentException e) {
             System.out.printf("Campos preenchidos incorretamente. %s\n", e.getMessage());
         }
     }
 
-    // Opção 3 -> Futuramente Dentro de SecureController
+    // Opcao 3
     private void SecureTypesViewOption(){
-        // Todo: Puxar do banco de dados
-        List<String> secureTypes = List.of(
-                "Seguro de Vida",
-                "Seguro de Automóvel",
-                "Seguro Residencial",
-                "Seguro Saúde",
-                "Seguro Viagem"
-        );
+        var seguros = seguroService.getAllSeguros();
+        if (seguros.isEmpty()) {
+            System.out.println("Nenhum seguro cadastrado.\n");
+            return;
+        }
 
-        System.out.println("Seguros disponíveis:\n");
-        secureTypes.forEach(type -> System.out.println("- " + type));
+        System.out.println("Seguros disponiveis:\n");
+        seguros.forEach(s -> System.out.printf("- %s | Cobertura minima: %s | Premio base: %s%n",
+                s.titulo(), s.coberturaMinima(), s.valorPremioBase()));
         System.out.println();
     }
 
-    // Opção 7
+    // Opcao 7
     private void ViewDashboardOption() {
-        System.out.println("Not Implemented");
+        var dashboard = apoliceService.getDashboard();
+        if (dashboard == null || dashboard.isEmpty()) {
+            System.out.println("Nenhuma apolice registrada para montar dashboard.\n");
+            return;
+        }
+
+        System.out.println("Dashboard por tipo de seguro:");
+        dashboard.forEach(d -> System.out.printf("Tipo: %s | Qtde apolices: %d | Valor total arrecadado: %s%n",
+                d.getTipoSeguro(), d.getQuantidadeApolices(), d.getValorTotalArrecadado()));
+        System.out.println();
     }
 }
-

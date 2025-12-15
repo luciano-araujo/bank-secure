@@ -22,7 +22,7 @@ public class Bem {
     private UUID id;
 
     @Column(nullable = false)
-    private String descricao;
+    private String titulo;
 
     @Column(nullable = false)
     private BigDecimal valor;

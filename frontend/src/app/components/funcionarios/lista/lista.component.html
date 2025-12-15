@@ -1,0 +1,52 @@
+<div class="container" id="funcionarios-lista-container">
+    <header class="page-header" id="funcionarios-header">
+        <h1 id="page-title">Funcionários</h1>
+        <div class="actions" id="header-actions">
+            <button id="novo-funcionario-btn" class="btn btn-primary" (click)="novoFuncionario()">+ Novo
+                Funcionário</button>
+            <button id="voltar-btn" class="btn btn-secondary" (click)="voltar()">Voltar</button>
+        </div>
+    </header>
+
+    @if (loading) {
+    <div class="loading" id="loading-funcionarios">Carregando...</div>
+    }
+
+    @if (errorMessage) {
+    <div class="error-message" id="error-message">{{ errorMessage }}</div>
+    }
+
+    @if (!loading && funcionarios.length === 0) {
+    <div class="empty-state" id="empty-state">Nenhum funcionário cadastrado</div>
+    }
+
+    <div class="table-container" id="funcionarios-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Email</th>
+                    <th>Cargo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (funcionario of funcionarios; track funcionario.id) {
+                <tr [id]="'funcionario-row-' + funcionario.id">
+                    <td [id]="'funcionario-nome-' + funcionario.id">{{ funcionario.nome }}</td>
+                    <td [id]="'funcionario-cpf-' + funcionario.id">{{ funcionario.cpf }}</td>
+                    <td [id]="'funcionario-email-' + funcionario.id">{{ funcionario.email }}</td>
+                    <td [id]="'funcionario-cargo-' + funcionario.id">{{ funcionario.cargo }}</td>
+                    <td>
+                        <button [id]="'editar-btn-' + funcionario.id" class="btn btn-edit"
+                            (click)="editar(funcionario.id!)">Editar</button>
+                        <button [id]="'deletar-btn-' + funcionario.id" class="btn btn-delete"
+                            (click)="deletar(funcionario.id!)">Excluir</button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

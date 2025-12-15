@@ -10,8 +10,8 @@ import java.util.UUID;
 public record BemDTO(
         UUID id,
 
-        @NotBlank(message = "A descrição do bem é obrigatória")
-        String descricao,
+        @NotBlank(message = "O título do bem é obrigatório")
+        String titulo,
 
         @NotNull(message = "O valor do bem é obrigatório")
         BigDecimal valor,
@@ -22,17 +22,16 @@ public record BemDTO(
     public static BemDTO fromEntity(Bem bem) {
         return new BemDTO(
                 bem.getId(),
-                bem.getDescricao(),
+                bem.getTitulo(),
                 bem.getValor(),
                 bem.getApolice() != null ? bem.getApolice().getId() : null
         );
     }
 
-    // apólice será setada na service
     public Bem toEntity() {
         Bem bem = new Bem();
         bem.setId(this.id());
-        bem.setDescricao(this.descricao());
+        bem.setTitulo(this.titulo());
         bem.setValor(this.valor());
         return bem;
     }

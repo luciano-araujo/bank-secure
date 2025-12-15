@@ -1,0 +1,50 @@
+<div class="container" id="dashboard-container">
+    <header class="page-header" id="dashboard-header">
+        <h1 id="page-title">Dashboard - Apólices</h1>
+        <button id="voltar-btn" class="btn btn-secondary" (click)="voltar()">Voltar</button>
+    </header>
+
+    @if (loading) {
+    <div class="loading" id="loading">Carregando...</div>
+    }
+
+    @if (errorMessage) {
+    <div class="error-message" id="error-message">{{ errorMessage }}</div>
+    }
+
+    @if (dashboard) {
+    <div class="dashboard-grid" id="dashboard-grid">
+        <div class="stat-card" id="total-apolices-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-info">
+                <h3 id="total-apolices">{{ dashboard.totalApolices }}</h3>
+                <p>Total de Apólices</p>
+            </div>
+        </div>
+
+        <div class="stat-card" id="valor-total-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+                <h3 id="valor-total">{{ dashboard.valorTotalCobertura | currency:'BRL' }}</h3>
+                <p>Valor Total em Cobertura</p>
+            </div>
+        </div>
+
+        <div class="stat-card success" id="apolices-ativas-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+                <h3 id="apolices-ativas">{{ dashboard.apolicesAtivas }}</h3>
+                <p>Apólices Ativas</p>
+            </div>
+        </div>
+
+        <div class="stat-card danger" id="apolices-vencidas-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-info">
+                <h3 id="apolices-vencidas">{{ dashboard.apolicesVencidas }}</h3>
+                <p>Apólices Vencidas</p>
+            </div>
+        </div>
+    </div>
+    }
+</div>

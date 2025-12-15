@@ -1,0 +1,54 @@
+<div class="container" id="seguros-lista-container">
+    <header class="page-header" id="seguros-header">
+        <h1 id="page-title">Seguros Disponíveis</h1>
+        <div class="actions" id="header-actions">
+            @if (isFuncionario) {
+            <button id="novo-seguro-btn" class="btn btn-primary" (click)="novoSeguro()">+ Novo Seguro</button>
+            }
+            <button id="voltar-btn" class="btn btn-secondary" (click)="voltar()">Voltar</button>
+        </div>
+    </header>
+
+    @if (loading) {
+    <div class="loading" id="loading-seguros">Carregando...</div>
+    }
+
+    @if (errorMessage) {
+    <div class="error-message" id="error-message">{{ errorMessage }}</div>
+    }
+
+    @if (!loading && seguros.length === 0) {
+    <div class="empty-state" id="empty-state">
+        <p>Nenhum seguro cadastrado</p>
+    </div>
+    }
+
+    <div class="seguros-grid" id="seguros-grid">
+        @for (seguro of seguros; track seguro.id) {
+        <div class="seguro-card" [id]="'seguro-card-' + seguro.id">
+            <h3 [id]="'seguro-titulo-' + seguro.id">{{ seguro.titulo }}</h3>
+            <div class="seguro-info">
+                <div class="info-item">
+                    <label>Cobertura Mínima:</label>
+                    <span [id]="'seguro-cobertura-' + seguro.id">{{ seguro.coberturaMinima }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Prêmio Base:</label>
+                    <span [id]="'seguro-premio-' + seguro.id">{{ seguro.valorPremioBase | currency:'BRL' }}</span>
+                </div>
+            </div>
+
+            @if (isFuncionario) {
+            <div class="card-actions" [id]="'actions-' + seguro.id">
+                <button [id]="'editar-btn-' + seguro.id" class="btn btn-edit" (click)="editar(seguro.id!)">
+                    Editar
+                </button>
+                <button [id]="'deletar-btn-' + seguro.id" class="btn btn-delete" (click)="deletar(seguro.id!)">
+                    Excluir
+                </button>
+            </div>
+            }
+        </div>
+        }
+    </div>
+</div>

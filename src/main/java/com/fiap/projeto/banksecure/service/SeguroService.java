@@ -1,13 +1,10 @@
 package com.fiap.projeto.banksecure.service;
 
-import com.fiap.projeto.banksecure.domain.Apolice;
 import com.fiap.projeto.banksecure.domain.Seguro;
-import com.fiap.projeto.banksecure.dto.ApoliceDTO;
 import com.fiap.projeto.banksecure.dto.SeguroDTO;
 import com.fiap.projeto.banksecure.repository.SeguroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,101 +16,54 @@ public class SeguroService {
 
     private final SeguroRepository seguroRepository;
 
-    public void validarCadastro(Seguro seguro) {
-        if (seguro == null) {
-            throw new IllegalArgumentException("Seguro é obrigatório.");
-        }
-
-        if (seguro.getTitulo() == null || seguro.getTitulo().trim().isEmpty()) {
-            throw new IllegalArgumentException("Título do seguro é obrigatório.");
-        }
-
-        if (seguro.getTipoSeguroEnum() == null || seguro.getTipoSeguroEnum().toString().trim().isEmpty()) {
-            throw new IllegalArgumentException("Tipo do seguro é obrigatório.");
-        }
-
-        if (seguro.getValorPremioBase() == null || seguro.getValorPremioBase().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Prêmio base deve ser maior que zero.");
-        }
-
-        if (seguro.getDescricao() == null || seguro.getDescricao().trim().isEmpty()) {
-            throw new IllegalArgumentException("Descrição do seguro é obrigatória.");
-        }
-
-        if (seguro.getCoberturaMinima() == null || seguro.getCoberturaMinima().trim().isEmpty()) {
-            throw new IllegalArgumentException("Cobertura Mínima do seguro é obrigatória.");
-        }
+    public SeguroDTO cadastrarSeguro(SeguroDTO dto) {
+        Seguro seguro = dto.toEntity();
+        validarSeguro(seguro);
+        Seguro saved = seguroRepository.save(seguro);
+        return SeguroDTO.fromEntity(saved);
     }
 
-    @Transactional
-    public SeguroDTO cadastrarSeguro(SeguroDTO seguroDTO) {
-        Seguro seguro = seguroDTO.toEntity();
-
-        validarCadastro(seguro);
-        Seguro seguroCadastrado = seguroRepository.save(seguro);
-
-        return SeguroDTO.fromEntity(seguroCadastrado);
-    }
-
-    @Transactional
-    public SeguroDTO atualizarSeguro(UUID id, SeguroDTO seguroDTO) throws IllegalArgumentException {
+    public SeguroDTO atualizarSeguro(UUID id, SeguroDTO seguroDTO) {
         Seguro seguroExistente = seguroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seguro não encontrado com o ID: " + id));
 
-        if(!(seguroDTO.titulo() == null || seguroDTO.titulo().trim().isBlank())) {
-            seguroExistente.setTitulo(seguroDTO.titulo());
-        }
+        seguroExistente.setTitulo(seguroDTO.titulo());
+        seguroExistente.setCoberturaMinima(seguroDTO.coberturaMinima());
+        seguroExistente.setValorPremioBase(seguroDTO.valorPremioBase());
 
-        if(!(seguroDTO.valorPremioBase() == null || seguroDTO.valorPremioBase().toString().trim().isEmpty())) {
-            seguroExistente.setValorPremioBase(seguroDTO.valorPremioBase());
-        }
-
-        if(!(seguroDTO.descricao() == null || seguroDTO.descricao().trim().isBlank())) {
-            seguroExistente.setDescricao(seguroDTO.descricao());
-        }
-
-        if(!(seguroDTO.coberturaMinima() == null || seguroDTO.coberturaMinima().trim().isBlank())) {
-            seguroExistente.setCoberturaMinima(seguroDTO.coberturaMinima());
-        }
-
-        if(!(seguroDTO.tipoSeguroEnum() == null || seguroDTO.tipoSeguroEnum().toString().trim().isBlank())) {
-            seguroExistente.setTipoSeguroEnum(seguroDTO.tipoSeguroEnum());
-        }
-
-        if(seguroDTO.apolices() != null && !seguroDTO.apolices().isEmpty()) {
-            List<Apolice> apolices = seguroDTO.apolices().stream()
-                    .map(ApoliceDTO::toEntity)
-                    .toList();
-            seguroExistente.setApolices(apolices);
-        }
-
-        validarCadastro(seguroExistente);
-        Seguro seguroAtualizado = seguroRepository.save(seguroExistente);
-
-        return SeguroDTO.fromEntity(seguroAtualizado);
+        validarSeguro(seguroExistente);
+        Seguro atualizado = seguroRepository.save(seguroExistente);
+        return SeguroDTO.fromEntity(atualizado);
     }
 
-    public void deletarSeguro(UUID id) throws RuntimeException {
+    public void deletarSeguro(UUID id) {
         Seguro seguro = seguroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
-
         seguroRepository.delete(seguro);
     }
 
-    @Transactional(readOnly = true)
-    public SeguroDTO buscarPorId(UUID id) throws RuntimeException {
+    public SeguroDTO buscarPorId(UUID id) {
         Seguro seguro = seguroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Seguro não encontrado"));
-
         return SeguroDTO.fromEntity(seguro);
     }
 
-    @Transactional(readOnly = true)
     public List<SeguroDTO> getAllSeguros() {
-        return seguroRepository
-                .findAll()
-                .stream()
+        return seguroRepository.findAll().stream()
                 .map(SeguroDTO::fromEntity)
                 .toList();
+    }
+
+    protected void validarSeguro(Seguro seguro) {
+        if (seguro.getTitulo() == null || seguro.getTitulo().trim().isEmpty()) {
+            throw new IllegalArgumentException("Título é obrigatório.");
+        }
+        if (seguro.getValorPremioBase() == null) {
+            throw new IllegalArgumentException("Valor de Prêmio Base é obrigatório.");
+        }
+
+        if (BigDecimal.ZERO.compareTo(seguro.getValorPremioBase()) >= 0) {
+            throw new IllegalArgumentException("Valor de Prêmio Base deve ser positivo.");
+        }
     }
 }

@@ -1,0 +1,51 @@
+<div class="container" id="clientes-lista-container">
+    <header class="page-header" id="clientes-header">
+        <h1 id="page-title">Clientes</h1>
+        <div class="actions" id="header-actions">
+            <button id="novo-cliente-btn" class="btn btn-primary" (click)="novoCliente()">+ Novo Cliente</button>
+            <button id="voltar-btn" class="btn btn-secondary" (click)="voltar()">Voltar</button>
+        </div>
+    </header>
+
+    @if (loading) {
+    <div class="loading" id="loading-clientes">Carregando...</div>
+    }
+
+    @if (errorMessage) {
+    <div class="error-message" id="error-message">{{ errorMessage }}</div>
+    }
+
+    @if (!loading && clientes.length === 0) {
+    <div class="empty-state" id="empty-state">Nenhum cliente cadastrado</div>
+    }
+
+    <div class="table-container" id="clientes-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (cliente of clientes; track cliente.id) {
+                <tr [id]="'cliente-row-' + cliente.id">
+                    <td [id]="'cliente-nome-' + cliente.id">{{ cliente.nome }}</td>
+                    <td [id]="'cliente-cpf-' + cliente.id">{{ cliente.cpf }}</td>
+                    <td [id]="'cliente-email-' + cliente.id">{{ cliente.email }}</td>
+                    <td [id]="'cliente-telefone-' + cliente.id">{{ cliente.telefone }}</td>
+                    <td>
+                        <button [id]="'editar-btn-' + cliente.id" class="btn btn-edit"
+                            (click)="editar(cliente.id!)">Editar</button>
+                        <button [id]="'deletar-btn-' + cliente.id" class="btn btn-delete"
+                            (click)="deletar(cliente.id!)">Excluir</button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

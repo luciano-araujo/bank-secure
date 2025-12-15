@@ -1,6 +1,5 @@
 package com.fiap.projeto.banksecure.domain;
 
-import com.fiap.projeto.banksecure.enums.TipoSeguroEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,18 +25,11 @@ public class Seguro {
     @Column(nullable = false)
     private String titulo;
 
-    @Column(nullable = false)
-    private BigDecimal valorPremioBase;
-
-    @Column(nullable = false)
-    private String descricao;
-
-    @Column(nullable = false)
+    @Column(name = "cobertura_minima", nullable = false)
     private String coberturaMinima;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoSeguroEnum tipoSeguroEnum;
+    @Column(name = "valor_premio_base", nullable = false)
+    private BigDecimal valorPremioBase;
 
     @OneToMany(mappedBy = "seguro", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Apolice> apolices = new ArrayList<>();
