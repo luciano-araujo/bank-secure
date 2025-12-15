@@ -1,4 +1,4 @@
-package com.fiap.projeto.banksecure.domain.entity.enums;
+package com.fiap.projeto.banksecure.domain.enums;
 
 public enum TipoUsuarioEnum {
     FUNCIONARIO,

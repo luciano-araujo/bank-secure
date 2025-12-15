@@ -1,8 +1,8 @@
 package com.fiap.projeto.banksecure.infra.console;
 
 import com.fiap.projeto.banksecure.application.service.*;
-import com.fiap.projeto.banksecure.infra.repository.console.menus.MenuApolices;
-import com.fiap.projeto.banksecure.infra.repository.console.menus.MenuCliente;
+import com.fiap.projeto.banksecure.infra.console.menus.MenuApolices;
+import com.fiap.projeto.banksecure.infra.console.menus.MenuCliente;
 import com.fiap.projeto.banksecure.infra.console.menus.MenuSeguro;
 import com.fiap.projeto.banksecure.domain.entity.Cliente;
 import com.fiap.projeto.banksecure.domain.entity.Funcionario;

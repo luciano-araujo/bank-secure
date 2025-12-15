@@ -1,4 +1,4 @@
-package com.fiap.projeto.banksecure.infra.repository.console.menus;
+package com.fiap.projeto.banksecure.infra.console.menus;
 
 import com.fiap.projeto.banksecure.domain.entity.Cliente;
 import com.fiap.projeto.banksecure.application.dto.ClienteDTO;

@@ -2,7 +2,7 @@ package com.fiap.projeto.banksecure.application.service;
 
 import com.fiap.projeto.banksecure.application.dto.AuthRequest;
 import com.fiap.projeto.banksecure.application.dto.AuthResponse;
-import com.fiap.projeto.banksecure.domain.entity.enums.TipoUsuarioEnum;
+import com.fiap.projeto.banksecure.domain.enums.TipoUsuarioEnum;
 import com.fiap.projeto.banksecure.infra.repository.ClienteRepository;
 import com.fiap.projeto.banksecure.infra.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
