@@ -4,6 +4,7 @@ import com.fiap.projeto.banksecure.dto.AuthRequest;
 import com.fiap.projeto.banksecure.dto.AuthResponse;
 import com.fiap.projeto.banksecure.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +19,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping
-    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest authRequest) {
         return ResponseEntity.ok(authService.login(authRequest));
     }
 }

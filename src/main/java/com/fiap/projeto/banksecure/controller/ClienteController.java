@@ -5,6 +5,7 @@ import com.fiap.projeto.banksecure.dto.FuncionarioDTO;
 import com.fiap.projeto.banksecure.repository.ClienteRepository;
 import com.fiap.projeto.banksecure.service.ClienteService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,12 +31,12 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<ClienteDTO> createCliente(@RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> createCliente(@Valid @RequestBody ClienteDTO clienteDTO) {
         return ResponseEntity.ok(clienteService.cadastrarCliente(clienteDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDTO> updateCliente(@PathVariable UUID id, @RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> updateCliente(@PathVariable UUID id, @Valid @RequestBody ClienteDTO clienteDTO) {
         return ResponseEntity.ok(clienteService.atualizarCliente(id, clienteDTO));
     }
 

@@ -4,6 +4,7 @@ import com.fiap.projeto.banksecure.dto.ApoliceDTO;
 import com.fiap.projeto.banksecure.dto.DashboardDTO;
 import com.fiap.projeto.banksecure.service.ApoliceService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ public class ApoliceController {
     private final ApoliceService apoliceService;
 
     @PostMapping
-    public ResponseEntity<ApoliceDTO> criarApolice(@RequestBody ApoliceDTO apoliceDTO) {
+    public ResponseEntity<ApoliceDTO> criarApolice(@Valid @RequestBody ApoliceDTO apoliceDTO) {
         return ResponseEntity.ok(apoliceService.criarApolice(apoliceDTO));
     }
 
