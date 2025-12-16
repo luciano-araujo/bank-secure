@@ -79,7 +79,7 @@ export class ListaComponent implements OnInit {
             <h1>BankSecure</h1>
             <p>Apólice de Seguro</p>
           </div>
-          
+
           <div class="content">
             <div class="info-row">
               <label>Número da Apólice:</label>
@@ -137,6 +137,13 @@ export class ListaComponent implements OnInit {
   }
 
   renovarApolice(apolice: Apolice): void {
+    if (!this.apoliceProximaVencer(apolice)) {
+      const msg = 'Nao e possivel renovar: a apolice so pode ser renovada quando faltar 30 dias ou menos para o vencimento.';
+      this.errorMessage = msg;
+      alert(msg);
+      return;
+    }
+
     if (confirm(`Deseja renovar a apólice ${apolice.id}? Será criada uma nova apólice com vigência de 1 ano e o prêmio será recalculado.`)) {
       this.loading = true;
       this.apoliceService.renovar(apolice.id!).subscribe({

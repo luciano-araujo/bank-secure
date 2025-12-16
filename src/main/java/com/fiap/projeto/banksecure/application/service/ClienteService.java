@@ -25,7 +25,7 @@ public class ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        return ClienteDTO.fromEntity(cliente);
+        return ClienteDTO.fromEntityFull(cliente);
     }
 
     public Cliente buscarPorCpf(String cpf) {
