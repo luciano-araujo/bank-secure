@@ -23,7 +23,7 @@ export class FormComponent implements OnInit {
   isEditMode = false;
   loading = false;
   errorMessage = '';
-  funcionarioId?: number;
+  funcionarioId?: string;
 
   constructor(
     private funcionarioService: FuncionarioService,
@@ -35,12 +35,12 @@ export class FormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
-      this.funcionarioId = +id;
+      this.funcionarioId = id;
       this.carregarFuncionario(this.funcionarioId);
     }
   }
 
-  carregarFuncionario(id: number): void {
+  carregarFuncionario(id: string): void {
     this.loading = true;
     this.funcionarioService.buscarPorId(id).subscribe({
       next: (funcionario) => {
@@ -58,8 +58,14 @@ export class FormComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
+    // Preparar dados para envio ao backend
+    const funcionarioData = {
+      ...this.funcionario
+      // CPF já está formatado corretamente, mantém como está
+    };
+
     if (this.isEditMode && this.funcionarioId) {
-      this.funcionarioService.atualizar(this.funcionarioId, this.funcionario).subscribe({
+      this.funcionarioService.atualizar(this.funcionarioId, funcionarioData).subscribe({
         next: () => this.router.navigate(['/funcionarios']),
         error: () => {
           this.errorMessage = 'Erro ao atualizar funcionário';
@@ -67,7 +73,7 @@ export class FormComponent implements OnInit {
         }
       });
     } else {
-      this.funcionarioService.criar(this.funcionario).subscribe({
+      this.funcionarioService.criar(funcionarioData).subscribe({
         next: () => this.router.navigate(['/funcionarios']),
         error: () => {
           this.errorMessage = 'Erro ao criar funcionário';
@@ -79,5 +85,24 @@ export class FormComponent implements OnInit {
 
   cancelar(): void {
     this.router.navigate(['/funcionarios']);
+  }
+
+  formatCPF(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    if (value.length > 9) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (value.length > 3) {
+      value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+
+    this.funcionario.cpf = value;
   }
 }

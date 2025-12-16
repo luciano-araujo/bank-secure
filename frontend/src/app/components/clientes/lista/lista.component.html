@@ -36,7 +36,7 @@
                     <td [id]="'cliente-nome-' + cliente.id">{{ cliente.nome }}</td>
                     <td [id]="'cliente-cpf-' + cliente.id">{{ cliente.cpf }}</td>
                     <td [id]="'cliente-email-' + cliente.id">{{ cliente.email }}</td>
-                    <td [id]="'cliente-telefone-' + cliente.id">{{ cliente.telefone }}</td>
+                    <td [id]="'cliente-telefone-' + cliente.id">{{ formatarTelefone(cliente.telefone) }}</td>
                     <td>
                         <button [id]="'editar-btn-' + cliente.id" class="btn btn-edit"
                             (click)="editar(cliente.id!)">Editar</button>

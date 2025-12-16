@@ -15,7 +15,7 @@ export class FuncionarioService {
         return this.http.get<Funcionario[]>(this.apiUrl);
     }
 
-    buscarPorId(id: number): Observable<Funcionario> {
+    buscarPorId(id: string): Observable<Funcionario> {
         return this.http.get<Funcionario>(`${this.apiUrl}/${id}`);
     }
 
@@ -23,11 +23,11 @@ export class FuncionarioService {
         return this.http.post<Funcionario>(this.apiUrl, funcionario);
     }
 
-    atualizar(id: number, funcionario: Funcionario): Observable<Funcionario> {
+    atualizar(id: string, funcionario: Funcionario): Observable<Funcionario> {
         return this.http.put<Funcionario>(`${this.apiUrl}/${id}`, funcionario);
     }
 
-    deletar(id: number): Observable<void> {
+    deletar(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 }

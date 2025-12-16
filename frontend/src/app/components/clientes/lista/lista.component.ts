@@ -28,6 +28,7 @@ export class ListaComponent implements OnInit {
     this.loading = true;
     this.clienteService.listar().subscribe({
       next: (clientes) => {
+        console.log('Clientes recebidos do backend:', clientes);
         this.clientes = clientes;
         this.loading = false;
       },
@@ -38,11 +39,16 @@ export class ListaComponent implements OnInit {
     });
   }
 
-  editar(id: number): void {
+  editar(id: string): void {
+    console.log('Editando cliente com ID:', id);
+    if (!id) {
+      this.errorMessage = 'ID do cliente inválido';
+      return;
+    }
     this.router.navigate(['/clientes/editar', id]);
   }
 
-  deletar(id: number): void {
+  deletar(id: string): void {
     if (confirm('Deseja realmente excluir este cliente?')) {
       this.clienteService.deletar(id).subscribe({
         next: () => this.carregarClientes(),
@@ -57,5 +63,23 @@ export class ListaComponent implements OnInit {
 
   novoCliente(): void {
     this.router.navigate(['/clientes/novo']);
+  }
+
+  formatarTelefone(telefone: string): string {
+    if (!telefone) return '';
+
+    // Remove tudo exceto números
+    const numeros = telefone.replace(/\D/g, '');
+
+    // Se começa com 55 (código do Brasil), remove
+    const somenteNumero = numeros.startsWith('55') ? numeros.substring(2) : numeros;
+
+    // Formata: 11 96888-2222
+    if (somenteNumero.length === 11) {
+      return `${somenteNumero.substring(0, 2)} ${somenteNumero.substring(2, 7)}-${somenteNumero.substring(7)}`;
+    }
+
+    // Retorna o original se não conseguir formatar
+    return telefone;
   }
 }

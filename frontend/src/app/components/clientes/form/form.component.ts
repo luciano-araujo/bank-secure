@@ -23,7 +23,7 @@ export class FormComponent implements OnInit {
   isEditMode = false;
   loading = false;
   errorMessage = '';
-  clienteId?: number;
+  clienteId?: string;
 
   constructor(
     private clienteService: ClienteService,
@@ -35,49 +35,127 @@ export class FormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
-      this.clienteId = +id;
+      this.clienteId = id;
       this.carregarCliente(this.clienteId);
     }
   }
 
-  carregarCliente(id: number): void {
+  carregarCliente(id: string): void {
     this.loading = true;
     this.clienteService.buscarPorId(id).subscribe({
       next: (cliente) => {
-        this.cliente = cliente;
+        console.log('Cliente carregado:', cliente);
+        // Formata o telefone de volta para formato visual
+        this.cliente = {
+          ...cliente,
+          telefone: this.formatarTelefoneParaExibicao(cliente.telefone)
+        };
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Erro ao carregar cliente:', error);
         this.errorMessage = 'Erro ao carregar cliente';
         this.loading = false;
       }
     });
   }
 
+  formatarTelefoneParaExibicao(telefone: string): string {
+    if (!telefone) return '';
+
+    // Remove tudo exceto números
+    const numeros = telefone.replace(/\D/g, '');
+
+    // Se começa com 55 (código do Brasil), remove
+    const somenteNumero = numeros.startsWith('55') ? numeros.substring(2) : numeros;
+
+    // Formata: 11 96888-2222
+    if (somenteNumero.length === 11) {
+      return `${somenteNumero.substring(0, 2)} ${somenteNumero.substring(2, 7)}-${somenteNumero.substring(7)}`;
+    }
+
+    // Retorna o número sem formatação se não conseguir formatar
+    return somenteNumero;
+  }
+
   onSubmit(): void {
     this.loading = true;
     this.errorMessage = '';
 
+    // Preparar dados para envio ao backend
+    const clienteData = {
+      ...this.cliente,
+      telefone: this.formatTelefoneParaBackend(this.cliente.telefone)
+      // CPF já está formatado corretamente, mantém como está
+    };
+
+    console.log('Enviando dados para o backend:', clienteData);
+
     if (this.isEditMode && this.clienteId) {
-      this.clienteService.atualizar(this.clienteId, this.cliente).subscribe({
+      this.clienteService.atualizar(this.clienteId, clienteData).subscribe({
         next: () => this.router.navigate(['/clientes']),
-        error: () => {
-          this.errorMessage = 'Erro ao atualizar cliente';
+        error: (error) => {
+          console.error('Erro ao atualizar:', error);
+          this.errorMessage = error.error?.message || 'Erro ao atualizar cliente';
           this.loading = false;
         }
       });
     } else {
-      this.clienteService.criar(this.cliente).subscribe({
+      this.clienteService.criar(clienteData).subscribe({
         next: () => this.router.navigate(['/clientes']),
-        error: () => {
-          this.errorMessage = 'Erro ao criar cliente';
+        error: (error) => {
+          console.error('Erro ao criar:', error);
+          this.errorMessage = error.error?.message || 'Erro ao criar cliente';
           this.loading = false;
         }
       });
     }
   }
 
+  formatTelefoneParaBackend(telefone: string): string {
+    // Remove todos os caracteres não numéricos
+    const numbersOnly = telefone.replace(/\D/g, '');
+    // Adiciona o código do país (+55) para o formato E.164
+    return `+55${numbersOnly}`;
+  }
+
   cancelar(): void {
     this.router.navigate(['/clientes']);
+  }
+
+  formatCPF(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    if (value.length > 9) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (value.length > 3) {
+      value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+
+    this.cliente.cpf = value;
+  }
+
+  formatTelefone(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    if (value.length > 6) {
+      value = value.replace(/(\d{2})(\d{5})(\d{1,4})/, '$1 $2-$3');
+    } else if (value.length > 2) {
+      value = value.replace(/(\d{2})(\d{1,5})/, '$1 $2');
+    }
+
+    this.cliente.telefone = value;
   }
 }

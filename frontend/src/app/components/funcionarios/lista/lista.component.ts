@@ -38,11 +38,11 @@ export class ListaComponent implements OnInit {
     });
   }
 
-  editar(id: number): void {
+  editar(id: string): void {
     this.router.navigate(['/funcionarios/editar', id]);
   }
 
-  deletar(id: number): void {
+  deletar(id: string): void {
     if (confirm('Deseja realmente excluir este funcionário?')) {
       this.funcionarioService.deletar(id).subscribe({
         next: () => this.carregarFuncionarios(),

@@ -57,6 +57,14 @@ form {
             border-color: #dc3545;
         }
     }
+
+    .form-hint {
+        display: block;
+        margin-top: 0.25rem;
+        color: #666;
+        font-size: 0.875rem;
+        font-style: italic;
+    }
 }
 
 .form-actions {
