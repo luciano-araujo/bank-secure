@@ -33,7 +33,7 @@ public record ClienteDTO(
 
         // Validação: o telefone não pode ser nulo ou vazio
         // Deve ter entre 10 e 15 caracteres
-        @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Telefone deve seguir E.164, ex: +5511987654321")
+        @Pattern(regexp = "^\\d{2} \\d{5}-\\d{4}$", message = "Telefone deve seguir o padrão 11 98765-4321")
         @NotBlank(message = "Telefone é obrigatório")
         String telefone,
 
