@@ -83,11 +83,15 @@ export class FormComponent implements OnInit {
     this.errorMessage = '';
 
     // Preparar dados para envio ao backend
-    const clienteData = {
-      ...this.cliente,
-      telefone: this.formatTelefoneParaBackend(this.cliente.telefone)
-      // CPF já está formatado corretamente, mantém como está
+    const clienteData: any = {
+      ...this.cliente
+      // CPF e telefone já estão formatados corretamente, mantém como está
     };
+
+    // Remove senha ao editar (não é permitido atualizar senha)
+    if (this.isEditMode) {
+      delete clienteData.senha;
+    }
 
     console.log('Enviando dados para o backend:', clienteData);
 
