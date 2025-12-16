@@ -21,10 +21,10 @@ public class DataInitializer {
 
     @Bean
     CommandLineRunner initDatabase(FuncionarioRepository funcionarioRepository,
-                                   SeguroRepository seguroRepository,
-                                   ApoliceRepository apoliceRepository,
-                                   ClienteRepository clienteRepository,
-                                   PasswordEncoder passwordEncoder) {
+            SeguroRepository seguroRepository,
+            ApoliceRepository apoliceRepository,
+            ClienteRepository clienteRepository,
+            PasswordEncoder passwordEncoder) {
         return args -> {
             if (funcionarioRepository.count() == 0) {
                 Funcionario admin = new Funcionario();
@@ -48,20 +48,22 @@ public class DataInitializer {
                 // Seguro Auto
                 Seguro seguroAuto = new Seguro();
                 seguroAuto.setTitulo("Seguro Auto");
-                seguroAuto.setCoberturaMinima(("30000.00"));
-                seguroAuto.setValorPremioBase(new BigDecimal("1800.00"));
+                seguroAuto.setCoberturaMinima("Cobertura para colisão, roubo, furto, incêndio e danos a terceiros");
+                seguroAuto.setValorPremioBase(new BigDecimal("2500.00"));
 
                 // Seguro Residencial
                 Seguro seguroResidencial = new Seguro();
                 seguroResidencial.setTitulo("Seguro Residencial");
-                seguroResidencial.setCoberturaMinima(("150000.00"));
-                seguroResidencial.setValorPremioBase(new BigDecimal("850.00"));
+                seguroResidencial.setCoberturaMinima(
+                        "Cobertura para incêndio, roubo, danos elétricos, vendaval e responsabilidade civil");
+                seguroResidencial.setValorPremioBase(new BigDecimal("800.00"));
 
                 // Seguro Vida
                 Seguro seguroVida = new Seguro();
                 seguroVida.setTitulo("Seguro Vida");
-                seguroVida.setCoberturaMinima(("100000.00"));
-                seguroVida.setValorPremioBase(new BigDecimal("600.00"));
+                seguroVida.setCoberturaMinima(
+                        "Cobertura para morte natural, acidental, invalidez permanente e doenças graves");
+                seguroVida.setValorPremioBase(new BigDecimal("150.00"));
 
                 seguroRepository.save(seguroAuto);
                 seguroRepository.save(seguroResidencial);
@@ -69,9 +71,9 @@ public class DataInitializer {
 
                 System.out.println("========================================");
                 System.out.println("SEGUROS PADRAO CRIADOS:");
-                System.out.println("- Auto: Cobertura R$30.000 | Premio R$1.800/ano");
-                System.out.println("- Residencial: Cobertura R$150.000 | Premio R$850/ano");
-                System.out.println("- Vida: Cobertura R$100.000 | Premio R$600/ano");
+                System.out.println("- Auto: Premio base R$2.500/ano");
+                System.out.println("- Residencial: Premio base R$800/ano");
+                System.out.println("- Vida: Premio base R$150/mes");
                 System.out.println("========================================");
             }
 

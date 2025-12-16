@@ -126,18 +126,23 @@
 
 .info-item {
     display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
     border-bottom: 1px solid #f0f0f0;
 
     label {
-        font-weight: 500;
+        font-weight: 600;
         color: #666;
+        font-size: 0.9rem;
     }
 
     span {
         color: #333;
-        font-weight: 600;
+        font-weight: 400;
+        line-height: 1.6;
+        word-wrap: break-word;
+        white-space: normal;
     }
 }
 
