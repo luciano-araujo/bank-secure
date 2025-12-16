@@ -1,5 +1,5 @@
 export interface Seguro {
-    id?: number;
+    id?: string;
     titulo: string;
     coberturaMinima: string;
     valorPremioBase: number;

@@ -20,7 +20,7 @@ export class FormComponent implements OnInit {
   isEditMode = false;
   loading = false;
   errorMessage = '';
-  seguroId?: number;
+  seguroId?: string;
 
   constructor(
     private seguroService: SeguroService,
@@ -32,19 +32,21 @@ export class FormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
-      this.seguroId = +id;
+      this.seguroId = id;
       this.carregarSeguro(this.seguroId);
     }
   }
 
-  carregarSeguro(id: number): void {
+  carregarSeguro(id: string): void {
     this.loading = true;
     this.seguroService.buscarPorId(id).subscribe({
       next: (seguro) => {
+        console.log('Seguro carregado:', seguro);
         this.seguro = seguro;
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Erro ao carregar seguro:', error);
         this.errorMessage = 'Erro ao carregar seguro';
         this.loading = false;
       }

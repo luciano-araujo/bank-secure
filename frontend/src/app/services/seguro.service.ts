@@ -15,7 +15,7 @@ export class SeguroService {
         return this.http.get<Seguro[]>(this.apiUrl);
     }
 
-    buscarPorId(id: number): Observable<Seguro> {
+    buscarPorId(id: string): Observable<Seguro> {
         return this.http.get<Seguro>(`${this.apiUrl}/${id}`);
     }
 
@@ -23,11 +23,11 @@ export class SeguroService {
         return this.http.post<Seguro>(this.apiUrl, seguro);
     }
 
-    atualizar(id: number, seguro: Seguro): Observable<Seguro> {
+    atualizar(id: string, seguro: Seguro): Observable<Seguro> {
         return this.http.put<Seguro>(`${this.apiUrl}/${id}`, seguro);
     }
 
-    deletar(id: number): Observable<void> {
+    deletar(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 }

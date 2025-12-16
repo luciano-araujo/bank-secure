@@ -44,11 +44,12 @@ export class ListaComponent implements OnInit {
     });
   }
 
-  editar(id: number): void {
+  editar(id: string): void {
+    console.log('Editando seguro com ID:', id);
     this.router.navigate(['/seguros/editar', id]);
   }
 
-  deletar(id: number): void {
+  deletar(id: string): void {
     if (confirm('Deseja realmente excluir este seguro?')) {
       this.seguroService.deletar(id).subscribe({
         next: () => {
