@@ -89,9 +89,9 @@ export class FormComponent implements OnInit {
     };
 
     // Remove senha ao editar (não é permitido atualizar senha)
-    if (this.isEditMode) {
-      delete clienteData.senha;
-    }
+    //if (this.isEditMode) {
+    //  delete clienteData.senha;
+    // }
 
     console.log('Enviando dados para o backend:', clienteData);
 
