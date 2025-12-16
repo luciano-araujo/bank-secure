@@ -137,7 +137,7 @@ export class ListaComponent implements OnInit {
   }
 
   renovarApolice(apolice: Apolice): void {
-    if (!this.apoliceProximaVencer(apolice)) {
+    if (this.apoliceProximaVencer(apolice)) {
       alert('Essa apólice não pode ser renovada no momento. A renovação só é permitida quando faltarem 30 dias ou menos para a expiração.');
       return;
     }
