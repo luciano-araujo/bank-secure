@@ -34,9 +34,9 @@ public class ConsoleMenu {
     private final MenuSeguro menuSeguro;
 
     public void start(){
-        if(fazerCadastroInicial){
-            criarUsuariosIniciais();
-        }
+//        if(fazerCadastroInicial){
+//            criarUsuariosIniciais();
+//        }
 
         String option;
         Scanner scanner = new Scanner(System.in);
@@ -87,25 +87,25 @@ public class ConsoleMenu {
         } while (!option.equals("0"));
     }
 
-    private void criarUsuariosIniciais() {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setCpf("123456789");
-        funcionario.setEmail("email@email.com");
-        funcionario.setNome("Funcionario Inicial");
-        funcionario.setSenha("123");
-        funcionario.setTelefone("11999999999");
-        funcionario.setDataNascimento(LocalDate.of(1990, 1, 1));
-        funcionarioService.cadastrarFuncionario(FuncionarioDTO.fromEntity(funcionario));
-
-        Cliente cliente = new Cliente();
-        cliente.setCpf("123");
-        cliente.setEmail("cliente@mail.com");
-        cliente.setNome("Cliente Inicial");
-        cliente.setSenha("123");
-        cliente.setTelefone("11988888888");
-        cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
-        clienteService.cadastrarCliente(ClienteDTO.fromEntityFull(cliente));
-    }
+//    private void criarUsuariosIniciais() {
+//        Funcionario funcionario = new Funcionario();
+//        funcionario.setCpf("123456789");
+//        funcionario.setEmail("email@email.com");
+//        funcionario.setNome("Funcionario Inicial");
+//        funcionario.setSenha("123");
+//        funcionario.setTelefone("11999999999");
+//        funcionario.setDataNascimento(LocalDate.of(1990, 1, 1));
+//        funcionarioService.cadastrarFuncionario(FuncionarioDTO.fromEntity(funcionario));
+//
+////        Cliente cliente = new Cliente();
+////        cliente.setCpf("123");
+////        cliente.setEmail("cliente@mail.com");
+////        cliente.setNome("Cliente Inicial");
+////        cliente.setSenha("123");
+////        cliente.setTelefone("11988888888");
+////        cliente.setDataNascimento(LocalDate.of(1995, 5, 15));
+////        clienteService.cadastrarCliente(ClienteDTO.fromEntityFull(cliente));
+//    }
 
     private static String getMenu(LoginStats loginStats) {
         String menu = "\n";
