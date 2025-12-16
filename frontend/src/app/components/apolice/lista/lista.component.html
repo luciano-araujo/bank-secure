@@ -24,22 +24,29 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Cliente ID</th>
-                    <th>Seguro ID</th>
+                    <th>Cliente</th>
+                    <th>Seguro</th>
                     <th>Cobertura Total</th>
                     <th>Data Inicial</th>
                     <th>Data Vencimento</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 @for (apolice of apolices; track apolice.id) {
                 <tr [id]="'apolice-row-' + apolice.id">
                     <td [id]="'apolice-id-' + apolice.id">{{ apolice.id }}</td>
-                    <td [id]="'apolice-cliente-' + apolice.id">{{ apolice.clienteId }}</td>
-                    <td [id]="'apolice-seguro-' + apolice.id">{{ apolice.seguroId }}</td>
+                    <td [id]="'apolice-cliente-' + apolice.id">{{ getClienteNome(apolice.clienteId) }}</td>
+                    <td [id]="'apolice-seguro-' + apolice.id">{{ getSeguroTitulo(apolice.seguroId) }}</td>
                     <td [id]="'apolice-cobertura-' + apolice.id">{{ apolice.totalCobertura | currency:'BRL' }}</td>
                     <td [id]="'apolice-data-inicial-' + apolice.id">{{ apolice.dataInicial | date:'dd/MM/yyyy' }}</td>
                     <td [id]="'apolice-data-venc-' + apolice.id">{{ apolice.dataVencimento | date:'dd/MM/yyyy' }}</td>
+                    <td style="white-space: nowrap;">
+                        <button class="btn btn-edit" (click)="imprimirApolice(apolice)"
+                            style="margin-right: 8px;">Imprimir</button>
+                        <button class="btn btn-primary" (click)="renovarApolice(apolice)"
+                            [disabled]="!apoliceProximaVencer(apolice)">Renovar</button>
+                    </td>
                 </tr>
                 }
             </tbody>

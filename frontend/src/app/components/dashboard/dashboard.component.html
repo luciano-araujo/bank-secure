@@ -1,6 +1,6 @@
 <div class="container" id="dashboard-container">
     <header class="page-header" id="dashboard-header">
-        <h1 id="page-title">Dashboard - Apólices</h1>
+        <h1 id="page-title">Dashboard - Sumário por Tipo de Seguro</h1>
         <button id="voltar-btn" class="btn btn-secondary" (click)="voltar()">Voltar</button>
     </header>
 
@@ -12,38 +12,55 @@
     <div class="error-message" id="error-message">{{ errorMessage }}</div>
     }
 
-    @if (dashboard) {
-    <div class="dashboard-grid" id="dashboard-grid">
-        <div class="stat-card" id="total-apolices-card">
-            <div class="stat-icon">📄</div>
+    @if (!loading && dashboardPorTipo.length === 0) {
+    <div class="empty-state" id="empty-state">Nenhuma apólice cadastrada</div>
+    }
+
+    @if (dashboardPorTipo.length > 0) {
+    <!-- Cards de Resumo Geral -->
+    <div class="summary-cards" id="summary-cards">
+        <div class="stat-card" id="total-geral-card">
+            <div class="stat-icon">📊</div>
             <div class="stat-info">
-                <h3 id="total-apolices">{{ dashboard.totalApolices }}</h3>
-                <p>Total de Apólices</p>
+                <h3 id="total-geral">{{ totalGeral }}</h3>
+                <p>Total de Apólices Vendidas</p>
             </div>
         </div>
 
-        <div class="stat-card" id="valor-total-card">
+        <div class="stat-card" id="valor-total-geral-card">
             <div class="stat-icon">💰</div>
             <div class="stat-info">
-                <h3 id="valor-total">{{ dashboard.valorTotalCobertura | currency:'BRL' }}</h3>
-                <p>Valor Total em Cobertura</p>
+                <h3 id="valor-total-geral">{{ valorTotalGeral | currency:'BRL' }}</h3>
+                <p>Valor Total Arrecadado</p>
             </div>
         </div>
+    </div>
 
-        <div class="stat-card success" id="apolices-ativas-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-info">
-                <h3 id="apolices-ativas">{{ dashboard.apolicesAtivas }}</h3>
-                <p>Apólices Ativas</p>
-            </div>
-        </div>
-
-        <div class="stat-card danger" id="apolices-vencidas-card">
-            <div class="stat-icon">⚠️</div>
-            <div class="stat-info">
-                <h3 id="apolices-vencidas">{{ dashboard.apolicesVencidas }}</h3>
-                <p>Apólices Vencidas</p>
-            </div>
+    <!-- Tabela por Tipo de Seguro -->
+    <div class="dashboard-table-container" id="dashboard-table">
+        <h2>Detalhamento por Tipo de Seguro</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo de Seguro</th>
+                    <th>Quantidade de Apólices</th>
+                    <th>Valor Total Arrecadado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (item of dashboardPorTipo; track item.tipoSeguro) {
+                <tr [id]="'tipo-' + item.tipoSeguro">
+                    <td class="tipo-seguro">{{ item.tipoSeguro }}</td>
+                    <td class="quantidade">{{ item.quantidadeApolices }}</td>
+                    <td class="valor">{{ item.valorTotalArrecadado | currency:'BRL' }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        <!-- Total Geral abaixo da tabela -->
+        <div class="total-geral-dashboard"
+            style="margin-top: 1.5rem; text-align: right; font-weight: bold; font-size: 1.1rem;">
+            Total Geral Arrecadado: <span style="color: #388e3c;">{{ valorTotalGeral | currency:'BRL' }}</span>
         </div>
     </div>
     }

@@ -17,8 +17,8 @@ export class FormComponent implements OnInit {
     cpf: '',
     email: '',
     senha: '',
-    cargo: '',
-    dataAdmissao: ''
+    telefone: '',
+    dataNascimento: ''
   };
   isEditMode = false;
   loading = false;

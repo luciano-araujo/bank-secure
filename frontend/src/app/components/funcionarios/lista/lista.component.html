@@ -27,7 +27,8 @@
                     <th>Nome</th>
                     <th>CPF</th>
                     <th>Email</th>
-                    <th>Cargo</th>
+                    <th>Telefone</th>
+                    <th>Data de Nascimento</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -37,7 +38,9 @@
                     <td [id]="'funcionario-nome-' + funcionario.id">{{ funcionario.nome }}</td>
                     <td [id]="'funcionario-cpf-' + funcionario.id">{{ funcionario.cpf }}</td>
                     <td [id]="'funcionario-email-' + funcionario.id">{{ funcionario.email }}</td>
-                    <td [id]="'funcionario-cargo-' + funcionario.id">{{ funcionario.cargo }}</td>
+                    <td [id]="'funcionario-telefone-' + funcionario.id">{{ funcionario.telefone }}</td>
+                    <td [id]="'funcionario-nascimento-' + funcionario.id">{{ funcionario.dataNascimento |
+                        date:'dd/MM/yyyy' }}</td>
                     <td>
                         <button [id]="'editar-btn-' + funcionario.id" class="btn btn-edit"
                             (click)="editar(funcionario.id!)">Editar</button>

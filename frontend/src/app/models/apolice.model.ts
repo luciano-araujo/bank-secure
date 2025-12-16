@@ -13,3 +13,9 @@ export interface ApoliceDashboard {
     apolicesAtivas: number;
     apolicesVencidas: number;
 }
+
+export interface DashboardPorTipo {
+    tipoSeguro: string;
+    quantidadeApolices: number;
+    valorTotalArrecadado: number;
+}

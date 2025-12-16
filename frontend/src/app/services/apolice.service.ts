@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Apolice, ApoliceDashboard } from '../models/apolice.model';
+import { Apolice, ApoliceDashboard, DashboardPorTipo } from '../models/apolice.model';
 
 @Injectable({
     providedIn: 'root'
@@ -21,5 +21,9 @@ export class ApoliceService {
 
     getDashboard(): Observable<ApoliceDashboard> {
         return this.http.get<ApoliceDashboard>(`${this.apiUrl}/dashboard`);
+    }
+
+    getDashboardPorTipo(): Observable<DashboardPorTipo[]> {
+        return this.http.get<DashboardPorTipo[]>(`${this.apiUrl}/dashboard`);
     }
 }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApoliceService } from '../../services/apolice.service';
-import { ApoliceDashboard } from '../../models/apolice.model';
+import { DashboardPorTipo } from '../../models/apolice.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,9 +11,11 @@ import { ApoliceDashboard } from '../../models/apolice.model';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  dashboard?: ApoliceDashboard;
+  dashboardPorTipo: DashboardPorTipo[] = [];
   loading = false;
   errorMessage = '';
+  totalGeral = 0;
+  valorTotalGeral = 0;
 
   constructor(
     private apoliceService: ApoliceService,
@@ -26,9 +28,10 @@ export class DashboardComponent implements OnInit {
 
   carregarDashboard(): void {
     this.loading = true;
-    this.apoliceService.getDashboard().subscribe({
+    this.apoliceService.getDashboardPorTipo().subscribe({
       next: (data) => {
-        this.dashboard = data;
+        this.dashboardPorTipo = data;
+        this.calcularTotais();
         this.loading = false;
       },
       error: () => {
@@ -36,6 +39,11 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  calcularTotais(): void {
+    this.totalGeral = this.dashboardPorTipo.reduce((sum, item) => sum + item.quantidadeApolices, 0);
+    this.valorTotalGeral = this.dashboardPorTipo.reduce((sum, item) => sum + item.valorTotalArrecadado, 0);
   }
 
   voltar(): void {
