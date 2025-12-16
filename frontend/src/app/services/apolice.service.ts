@@ -30,4 +30,12 @@ export class ApoliceService {
     renovar(id: number): Observable<Apolice> {
         return this.http.post<Apolice>(`${this.apiUrl}/renovacao/${id}`, {});
     }
+
+    listarApolicesVencidas(): Observable<Apolice[]> {
+      return this.http.get<Apolice[]>(`${this.apiUrl}/vencidas`);
+    }
+
+    listarApolicesAVencer(): Observable<Apolice[]> {
+      return this.http.get<Apolice[]>(`${this.apiUrl}/vencer`);
+    }
 }

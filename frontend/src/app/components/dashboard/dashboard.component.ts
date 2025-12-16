@@ -16,6 +16,8 @@ export class DashboardComponent implements OnInit {
   errorMessage = '';
   totalGeral = 0;
   valorTotalGeral = 0;
+  apolicesVencidas = 0;
+  apolicesAVencer = 0;
 
   constructor(
     private apoliceService: ApoliceService,
@@ -24,6 +26,8 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregarDashboard();
+    this.carregarApolicesVencidas();
+    this.carregarApolicesAVencer();
   }
 
   carregarDashboard(): void {
@@ -37,6 +41,28 @@ export class DashboardComponent implements OnInit {
       error: () => {
         this.errorMessage = 'Erro ao carregar dashboard';
         this.loading = false;
+      }
+    });
+  }
+
+  carregarApolicesVencidas(): void {
+    this.apoliceService.listarApolicesVencidas().subscribe({
+      next: (data) => {
+        this.apolicesVencidas = data.length;
+      },
+      error: () => {
+        console.error('Erro ao carregar apólices vencidas');
+      }
+    });
+  }
+
+  carregarApolicesAVencer(): void {
+    this.apoliceService.listarApolicesAVencer().subscribe({
+      next: (data) => {
+        this.apolicesAVencer = data.length;
+      },
+      error: () => {
+        console.error('Erro ao carregar apólices a vencer');
       }
     });
   }
