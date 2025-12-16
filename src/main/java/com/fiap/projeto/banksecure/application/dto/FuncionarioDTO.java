@@ -24,7 +24,7 @@ public record FuncionarioDTO(
         @Size(min = 6, max = 100, message = "A senha deve ter entre 6 e 100 caracteres")
         String senha,
 
-        @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Telefone deve seguir E.164, ex: +5511987654321")
+        @Pattern(regexp = "^\\(\\d{2}\\) \\d{5}-\\d{4}$", message = "Telefone deve seguir o padrão (11) 98765-4321")
         @NotBlank(message = "Telefone é obrigatório")
         String telefone,
 
