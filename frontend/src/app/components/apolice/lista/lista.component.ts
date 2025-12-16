@@ -130,14 +130,27 @@ export class ListaComponent implements OnInit {
   apoliceProximaVencer(apolice: Apolice): boolean {
     const hoje = new Date();
     const venc = new Date(apolice.dataVencimento);
-    const umAnoDepois = new Date();
-    umAnoDepois.setFullYear(hoje.getFullYear() + 1);
-    // Retorna true se a apólice vence dentro de 1 ano (entre hoje e daqui a 1 ano)
-    return venc >= hoje && venc <= umAnoDepois;
+    const trintaDias = new Date();
+    trintaDias.setDate(hoje.getDate() + 30);
+    // Permite renovar se já venceu OU está dentro de 30 dias para vencer
+    return venc <= trintaDias;
   }
 
   renovarApolice(apolice: Apolice): void {
-    alert('Funcionalidade de renovação a ser implementada conforme RF09.');
+    if (confirm(`Deseja renovar a apólice ${apolice.id}? Será criada uma nova apólice com vigência de 1 ano e o prêmio será recalculado.`)) {
+      this.loading = true;
+      this.apoliceService.renovar(apolice.id!).subscribe({
+        next: (novaApolice) => {
+          alert(`Apólice renovada com sucesso! Nova apólice ID: ${novaApolice.id}`);
+          this.ngOnInit(); // Recarrega a lista
+        },
+        error: (err) => {
+          this.errorMessage = err.error?.message || 'Erro ao renovar apólice';
+          alert(this.errorMessage);
+          this.loading = false;
+        }
+      });
+    }
   }
 
   getClienteNome(clienteId: string | number): string {

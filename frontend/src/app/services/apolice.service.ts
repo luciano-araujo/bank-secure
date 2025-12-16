@@ -26,4 +26,8 @@ export class ApoliceService {
     getDashboardPorTipo(): Observable<DashboardPorTipo[]> {
         return this.http.get<DashboardPorTipo[]>(`${this.apiUrl}/dashboard`);
     }
+
+    renovar(id: number): Observable<Apolice> {
+        return this.http.post<Apolice>(`${this.apiUrl}/renovacao/${id}`, {});
+    }
 }
